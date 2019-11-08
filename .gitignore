@@ -1,0 +1,7 @@
+*~
+*.sw[op]
+*.[ao]
+cpx65asm
+cpx65dis
+cpx65ld
+unit_tests
