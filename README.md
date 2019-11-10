@@ -9,3 +9,9 @@ Also a proper preproccesor and linker.
 
 We'll see how it goes =)
 
+
+## Building
+
+```$ make```
+
+Due to extremely sucky Windows C runtime it'll probably fail to compile on Windows.

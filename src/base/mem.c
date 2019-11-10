@@ -81,6 +81,9 @@ void *base_realloc(void *ptr, size_t size)
     /* call realloc(3) */
     tmp = realloc(ptr, size);
     if (tmp == NULL) {
+        /* since we don't know the previous size, we'll have to barf on
+         * attempting to reallocate to a smaller size. May have to fix this.
+         */
         fprintf(stderr, "%s: failed to reallocate %zu bytes, exiting.\n",
                 __func__, size);
         exit(EXIT_FAILURE);

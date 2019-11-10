@@ -2,7 +2,7 @@
 #
 # Makefile for cpx65
 
-VPATH = src:src/base:src/base/cpu:src/tests
+VPATH = src:src/base:src/base/cpu:src/base/io:src/tests
 
 CC = gcc
 LD = gcc
@@ -23,9 +23,10 @@ all: $(BIN_ASM) $(BIN_TESTS)
 
 
 BASE_OBJS = addrmode.o cputype.o mnemonic.o opcode.o cmdline.o strlist.o mem.o \
-	    error.o objpool.o
+	    error.o objpool.o binfile.o
 
-TEST_OBJS = unit.o test_cpu.o test_mem.o test_objpool.o test_unittest.o
+TEST_OBJS = unit.o test_cpu.o test_mem.o test_objpool.o test_io.o \
+	    test_unittest.o
 
 
 $(BIN_ASM): src/asm/main.o $(BASE_OBJS)

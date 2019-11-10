@@ -21,6 +21,7 @@
 #include "test_objpool.h"
 #include "test_mem.h"
 #include "test_cpu.h"
+#include "test_io.h"
 
 
 /** \brief  Option result object for -m/--list-modules
@@ -69,6 +70,7 @@ static void register_modules(void)
     unit_module_add(&mem_module);
     unit_module_add(&objpool_module);
     unit_module_add(&cpu_module);
+    unit_module_add(&io_module);
 
 }
 
