@@ -28,6 +28,20 @@
 #define CHUNK_SIZE          INITIAL_BUFSIZE
 
 
+/** \brief  Read binary file while allocating memory
+ *
+ * \param[in]   path    path to file
+ * \param[out]  dest    object to store pointer to data of \a path
+ *
+ * \return  number of bytes read, or -1 on error
+ *
+ * \throw   BASE_ERR_IO I/O error
+ *
+ * \note    Tries to adjust memory used to the number of bytes read with
+ *          realloc(3), but this is not guaranteed to work according to the C
+ *          standard, so the memory used at \a dest might exceed the number of
+ *          bytes returned.
+ */
 long base_binfile_read(const char *path, uint8_t **dest)
 {
     FILE *fp;
@@ -95,3 +109,38 @@ long base_binfile_read(const char *path, uint8_t **dest)
     return size;
 }
 
+
+/** \brief  Write binary data to file
+ *
+ * \param[in]   path    file to write \a data to
+ * \param[in]   data    data to write to file
+ * \param[in]   size    number of bytes of \a data to write
+ *
+ * \return  boolean
+ *
+ * \throw   BASE_ERR_IO I/O error
+ */
+bool base_binfile_write(const char *path, const uint8_t *data, size_t size)
+{
+    FILE *fp;
+    size_t result;
+
+    /* attempt to open file for writing */
+    fp = fopen(path, "wb");
+    if (fp == NULL) {
+        base_errno = BASE_ERR_IO;
+        return false;
+    }
+
+    /* try to write to file */
+    result = fwrite(data, 1U, size, fp);
+    if (result != size) {
+        /* oops */
+        base_errno = BASE_ERR_IO;
+        fclose(fp);
+        return false;
+    }
+
+    fclose(fp);
+    return true;
+}
