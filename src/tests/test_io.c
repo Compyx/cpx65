@@ -12,9 +12,7 @@
 #include <string.h>
 
 #include "unit.h"
-#include "../base/debug.h"
-#include "../base/mem.h"
-#include "../base/io/binfile.h"
+#include "../base/base.h"
 
 
 #include "test_io.h"
