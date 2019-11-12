@@ -21,10 +21,18 @@ BIN_TESTS = unit_tests
 
 all: $(BIN_ASM) $(BIN_TESTS)
 
+# objects in src/base/cpu
+BASE_CPU_OBJS = addrmode.o cputype.o mnemonic.o opcode.o
 
-BASE_OBJS = addrmode.o cputype.o mnemonic.o opcode.o cmdline.o strlist.o mem.o \
-	    error.o objpool.o binfile.o
+# objects in src/base/io
+BASE_IO_OBJS = binfile.o txtfile.o
 
+# objects in src/base and its subdirs
+BASE_OBJS = cmdline.o strlist.o mem.o error.o objpool.o \
+	    $(BASE_CPU_OBJS) \
+	    $(BASE_IO_OBJS)
+
+# objects in src/tests
 TEST_OBJS = unit.o test_cpu.o test_mem.o test_objpool.o test_io.o \
 	    test_unittest.o
 

@@ -9,5 +9,6 @@
 #define BASE_IO_H
 
 #include "binfile.h"
+#include "txtfile.h"
 
 #endif
