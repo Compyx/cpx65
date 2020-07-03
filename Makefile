@@ -7,10 +7,10 @@ VPATH = src:src/base:src/base/cpu:src/base/io:src/tests
 CC = gcc
 LD = gcc
 CFLAGS = -Wall -Wextra -std=c99 -O2 -g \
-	      -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align \
-	      -Wstrict-prototypes -Wmissing-prototypes \
-	      -Wswitch-default -Wswitch-enum -Wuninitialized -Wconversion \
-	      -Wredundant-decls -Wnested-externs -Wunreachable-code
+	 -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align \
+	 -Wstrict-prototypes -Wmissing-prototypes \
+	 -Wswitch-default -Wswitch-enum -Wuninitialized -Wconversion \
+	 -Wredundant-decls -Wnested-externs -Wunreachable-code
 
 
 
@@ -58,4 +58,7 @@ clean:
 	rm -f $(BIN_ASM) $(BIN_DISAM) $(BIN_LD) $(BIN_TESTS)
 
 
+.PHONY: doc
+doc:
+	doxygen
 

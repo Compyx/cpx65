@@ -28,18 +28,18 @@ enum {
  * Also prints libc's errno and strerror(errno) in cases where libc might set
  * an error code, such as I/O errors.
  */
-#define base_perror(void) \
-    do { \
-        fprintf(stderr, \
-                "%s:%d:%s(): %d: %s", \
-                __FILE__, __LINE__, __func__, \
+#define base_perror(void)                               \
+    do {                                                \
+        fprintf(stderr,                                 \
+                "%s:%d:%s(): %d: %s",                   \
+                __FILE__, __LINE__, __func__,           \
                 base_errno, base_strerror(base_errno)); \
-        if (base_errno == BASE_ERR_IO) { \
-            fprintf(stderr, \
-                    " (%d: %s)", \
-                    errno, strerror(errno)); \
-        } \
-        fputc('\n', stderr); \
+        if (base_errno == BASE_ERR_IO) {                \
+            fprintf(stderr,                             \
+                    " (%d: %s)",                        \
+                    errno, strerror(errno));            \
+        }                                               \
+        fputc('\n', stderr);                            \
     } while (0);
 
 extern int base_errno;
