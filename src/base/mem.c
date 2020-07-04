@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include "mem.h"
 
@@ -175,4 +176,38 @@ size_t base_nextpow2(size_t n)
      * which is the next power of two
      */
     return 1LU << (b + 1LU);
+}
+
+
+/** \brief  Compare strings \a s1 and \a s2 in case-insensitive manner
+ *
+ * Implementation of POSIX.1-2001/4.4BSD strcasecmp()
+ *
+ * \param[in]   s1  first string
+ * \param[in]   s2  second string
+ *
+ *
+ * \return  -1 when s1 < s2, 0 if s1 == s2, 1 if s2 > s1
+ */
+int base_strcasecmp(const char *s1, const char *s2)
+{
+    while (*s1 != '\0' && *s2 != '\0') {
+        int c1 = tolower(*s1);
+        int c2 = tolower(*s2);
+
+        if (c1 < c2) {
+            return -1;
+        } else if (c1 > c2) {
+            return 1;
+        }
+        s1++;
+        s2++;
+    }
+    if (*s1 == '\0' && *s2 == '\0') {
+        return 0;
+    } else if (*s1 == '\0') {
+        return -1;
+    } else {
+        return 1;
+    }
 }

@@ -63,7 +63,7 @@ bool txtfile_open(txtfile_t *handle, const char *path)
 {
     FILE *fp;
 
-    base_debug("Attempting to open '%s':");
+    base_debug("Attempting to open '%s':", path);
     fp = fopen(path, "rb");
     if (fp == NULL) {
         base_debug(".. Failed!");

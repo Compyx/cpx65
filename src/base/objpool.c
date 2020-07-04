@@ -124,8 +124,8 @@ static void *objpool_add_active(objpool_t *pool, void *obj)
  * that satisfies the \a size requirement.
  *
  * \param[in,out]   pool    object pool
- * \param[in,out]   size    option size request
- * \param[in]       param   parameter to pass to the \a object constructor
+ * \param[in,out]   size    object size request (optional)
+ * \param[in]       param   parameter for the \a object constructor (optional)
  */
 void *objpool_request(objpool_t *pool, size_t size, void *param)
 {

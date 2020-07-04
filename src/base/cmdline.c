@@ -215,8 +215,6 @@ static cmdline_option_t *cmdline_option_init(const cmdline_option_t *option)
             }
             break;
         case CMDLINE_TYPE_ARR:
-            /* TODO: initialize string list and store it */
-            base_debug_cmdline("TODO: allocate string list");
             lptr = newopt->target;
             *lptr = strlist_init();
             break;
@@ -373,8 +371,6 @@ void cmdline_list_options(void)
 
 
 /** \brief  Show help on stdout
- *
- * \todo    Add support for prologue and epilogue
  */
 void cmdline_show_help(void)
 {

@@ -10,16 +10,17 @@ CFLAGS = -Wall -Wextra -std=c99 -O2 -g \
 	 -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align \
 	 -Wstrict-prototypes -Wmissing-prototypes \
 	 -Wswitch-default -Wswitch-enum -Wuninitialized -Wconversion \
-	 -Wredundant-decls -Wnested-externs -Wunreachable-code
+	 -Wredundant-decls -Wnested-externs -Wunreachable-code \
+	 -DHAVE_DEBUG
 
 
 
-BIN_ASM = cpx65asm
-BIN_DISASM = cpx65dis
+BIN_ASM = cpx65as
+BIN_DISASM = cpx65da
 BIN_LD = cpx65ld
 BIN_TESTS = unit_tests
 
-all: $(BIN_ASM) $(BIN_TESTS)
+all: $(BIN_ASM) $(BIN_DISASM) $(BIN_TESTS)
 
 # objects in src/base/cpu
 BASE_CPU_OBJS = addrmode.o cputype.o mnemonic.o opcode.o
@@ -40,6 +41,9 @@ TEST_OBJS = unit.o test_cpu.o test_mem.o test_objpool.o test_io.o \
 $(BIN_ASM): src/asm/main.o $(BASE_OBJS)
 	$(LD) -o $@ $^
 
+$(BIN_DISASM): src/disasm/main.o $(BASE_OBJS)
+	$(LD) -o $@ $^
+
 $(BIN_TESTS): src/tests/unit_tests.o $(BASE_OBJS) $(TEST_OBJS)
 	$(LD) -o $@ $^
 
@@ -55,7 +59,7 @@ $(BIN_TESTS): src/tests/unit_tests.o $(BASE_OBJS) $(TEST_OBJS)
 clean:
 	rm -f *.o
 	rm -f $(BASE_OBJS) $(TEST_OBJS)
-	rm -f $(BIN_ASM) $(BIN_DISAM) $(BIN_LD) $(BIN_TESTS)
+	rm -f $(BIN_ASM) $(BIN_DISASM) $(BIN_LD) $(BIN_TESTS)
 
 
 .PHONY: doc

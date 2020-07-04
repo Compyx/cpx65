@@ -11,7 +11,8 @@
 /** \brief  CPU type enumerator
  */
 typedef enum cpu_type_e {
-    CPU_65XX,       /**< standard 6502 with undocumented opcodes (default) */
+    CPU_UNKNOWN = -1,   /**< illegal/unknown CPU type */
+    CPU_65XX,       /**< standard 6502/6510 with undocumented opcodes (default) */
     CPU_6502,       /**< standard 6502 without undocumented opcodes */
     CPU_65C02,      /**< WDC 65C02 */
     CPU_R65C02,     /**< Rockwell R65C02 */
@@ -22,8 +23,17 @@ typedef enum cpu_type_e {
 } cpu_type_t;
 
 
+typedef struct cpu_type_info_s {
+    const char *name;   /**< string identifier for -m command line option */
+    cpu_type_t  type;   /**< type enum */
+    const char *desc;   /**< description */
+} cpu_type_info_t;
 
-const char *cpu_type_get_desc(cpu_type_t cpu_type);
+
+
+const char *cpu_type_get_name(int type);
+const char *cpu_type_get_desc(int type);
+int         cpu_type_get_id_by_name(const char *name);
 
 #endif
 

@@ -21,5 +21,6 @@ char *  base_strdup(const char *s);
 bool    base_ispow2(size_t n);
 size_t  base_nextpow2(size_t n);
 
+int     base_strcasecmp(const char *s1, const char *s2);
 
 #endif
