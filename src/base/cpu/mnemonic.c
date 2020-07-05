@@ -16,17 +16,42 @@
 
 #include "mnemonic.h"
 
-
+/** \brief  Mnemonics
+ *
+ * Huc6280 specific:
+ *
+ *  brs     BRanch to Subroutine
+ *  cla     CLear Accu
+ *  clx     CLear X
+ *  cly     CLear Y
+ *  csh     Chabge Speed High
+ *  csl     Change Speed Low
+ *  sax     Swap A and X (different from 6502's illegal opcode)
+ *  say     Swap A and Y
+ *  st0     STore vdc 0
+ *  st1     STore vcd 1
+ *  st2     STore vdc 2
+ *  sxy     Swap X and Y
+ *  tai     Transfer Alternate Increment
+ *  tam     Transfer Accu rto MPRs
+ *  tdd     Transfer Decrement Decrement
+ *  tia     Transfer Increment Alternate
+ *  tii     Transfer Increment Increment
+ *  tin     Transfer INcrement
+ *  tma     Transfer MPR to Accu
+ *  tst     TeST
+ */
 static const char *mnemonic_text[] = {
     /* A */
     "adc", "alr", "anc", "and", "ane", "arr", "asl",
     /* B */
     "bbr", "bbr0", "bbr1", "bbr2", "bbr3", "bbr4", "bbr5", "bbr6", "bbr7",
     "bbs", "bbs0", "bbs1", "bbs2", "bbs3", "bbs4", "bbs5", "bbs6", "bbs7",
-    "bcc", "bcs", "beq", "bit", "bmi", "bne", "bpl", "bra", "brk", "bvc",
-    "bvs",
+    "bcc", "bcs", "beq", "bit", "bmi", "bne", "bpl", "bra", "brk", "bsr",
+    "bvc", "bvs",
     /* C */
-    "clc", "cld", "cli", "clv", "cmp", "cpx", "cpy",
+    "cla", "clc", "cld", "cli", "clv", "clx", "cly", "cmp", "csh", "csl",
+    "cpx", "cpy",
     /* D */
     "dcp", "dea", "dec", "dex", "dey",
     /* E */
@@ -47,11 +72,13 @@ static const char *mnemonic_text[] = {
     "rla", "rmb", "rmb0", "rmb1", "rmb2", "rmb3", "rmb4", "rmb5", "rmb6",
     "rmb7", "rol", "ror", "rra", "rti", "rts",
     /* S */
-    "sax", "sbc", "sbx", "sec", "sed", "sei", "sha", "shx", "shy", "slo",
+    "st0", "st1", "st2",    /* Huc6270 VDC control */
+    "sax", "sax", "sbc", "sbx", "sec", "sed", "sei", "sha", "shx", "shy", "slo",
     "smb", "smb0", "smb1", "smb2", "smb3", "smb4", "smb5", "smb6", "smb7",
-    "sre", "sta", "stp", "stx", "sty", "stz",
+    "sre", "sta", "stp", "stx", "sty", "stz", "sxy",
     /* T */
-    "tas", "tax", "tay", "trb", "tsb", "tsx", "txa", "txs", "tya",
+    "tai", "tam", "tas", "tax", "tay", "tdd", "tia", "tii", "tin", "tma",
+    "trb", "tsb", "tst", "tsx", "txa", "txs", "tya",
     /* W */
     "wai"
 };
