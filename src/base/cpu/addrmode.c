@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../helpers.h"
+
 #include "addrmode.h"
 
 
@@ -29,11 +31,17 @@ static const addrmode_desc_t addrmode_descriptions[] = {
     /* 65C02 additions */
     { "izp", "(zero page)" },
     { "iax", "(absolute,X)" },
-    { "zpr", "zero page, branch" }
+    { "zpr", "zero page, branch" },
+    /* HuC6280 additions */
+    { "blt", "block transfer" },
+    { "ima", "immediate, absolute" },
+    { "imz", "immediate, zero page" }
 };
 
 
-#define ADDRMODE_DESC_ARRSIZE (sizeof addrmode_descriptions / sizeof addrmode_descriptions[0])
+/** \brief  Size of the addressing mode descriptions array
+ */
+#define ADDRMODE_DESC_ARRSIZE BASE_ARRAY_SIZE(addrmode_descriptions)
 
 
 /** \brief  Get three-letter addressing mode description for \a amd

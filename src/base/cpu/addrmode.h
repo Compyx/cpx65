@@ -28,13 +28,17 @@ typedef enum addrmode_id_e {
     /* 65C02 additions */
     AMD_IZP,        /**< indirect zero page */
     AMD_IAX,        /**< indirect absolute, indexed by X */
-    AMD_ZPR         /**< zero page + relative (65C02 BBR and BBS opcodes) */
+    AMD_ZPR         /**< zero page + relative (65C02 BBR and BBS opcodes) */,
+    /* HuC6280 additions */
+    AMD_BLT,        /**< block transfer */
+    AMD_IMA,        /**< immediate, absolute */
+    AMD_IMZ         /**< immediate, zero page */
 } addrmode_id_t;
 
 
 /** \brief  Maximum valid addressing mode ID
  */
-#define AMD_MAX    AMD_ZPR
+#define AMD_MAX    AMD_IMZ
 
 
 /** \brief  Addressing mode description object
