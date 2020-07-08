@@ -15,27 +15,29 @@
 /** \brief  Addressing mode descriptions
  */
 static const addrmode_desc_t addrmode_descriptions[] = {
-    { "imp", "implied" },
-    { "acc", "accumulator" },
-    { "imm", "immediate" },
-    { "zpg", "zero page" },
-    { "zpx", "zero page,X" },
-    { "zpy", "zero page,Y" },
-    { "izx", "(zero page,X)" },
-    { "izy", "(zero page),Y" },
-    { "abs", "absolute" },
-    { "abx", "absolute,X" },
-    { "aby", "absolute,Y" },
-    { "iab", "(absolute)" },
-    { "rel", "relative" },
+    { "imp",    "implied" },
+    { "acc",    "accumulator" },
+    { "imm",    "immediate" },
+    { "zpg",    "zero page" },
+    { "zpx",    "zero page,X" },
+    { "zpy",    "zero page,Y" },
+    { "izx",    "(zero page,X)" },
+    { "izy",    "(zero page),Y" },
+    { "abs",    "absolute" },
+    { "abx",    "absolute,X" },
+    { "aby",    "absolute,Y" },
+    { "iab",    "(absolute)" },
+    { "rel",    "relative" },
     /* 65C02 additions */
-    { "izp", "(zero page)" },
-    { "iax", "(absolute,X)" },
-    { "zpr", "zero page, branch" },
+    { "izp",    "(zero page)" },
+    { "iax",    "(absolute,X)" },
+    { "zpr",    "zero page, branch" },
     /* HuC6280 additions */
-    { "blt", "block transfer" },
-    { "ima", "immediate, absolute" },
-    { "imz", "immediate, zero page" }
+    { "blk",    "block transfer" },
+    { "ima",    "immediate, absolute" },
+    { "imax",   "immediate, absolute,X" },
+    { "imz",    "immediate, zero page" },
+    { "imzx",   "immediate, zero page,X" }
 };
 
 

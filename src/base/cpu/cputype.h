@@ -16,7 +16,7 @@ typedef enum cpu_type_e {
     CPU_6502,       /**< standard 6502 without undocumented opcodes */
     CPU_65C02,      /**< WDC 65C02 */
     CPU_R65C02,     /**< Rockwell R65C02 */
-    CPU_W65C02,     /**< WDC W65C02 */
+    CPU_W65C02S,    /**< WDC W65C02S */
     CPU_65CE02,     /**< CSG 65CE02 */
     CPU_2A03,       /**< Ricoh 2A03/2A07 (NES)*/
     CPU_HUC6280,    /**< Hudson Soft 6280 (TurboGrafx-16) */

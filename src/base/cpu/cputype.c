@@ -22,7 +22,7 @@ static const cpu_type_info_t cpu_type_list[] = {
     { "65xx",       CPU_65XX,       "MOS 6502/6510 with undocumented opcodes" },
     { "65c02",      CPU_65C02,      "WDC 65C02" },
     { "r65c02",     CPU_R65C02,     "Rockwell R65C02" },
-    { "w65c02",     CPU_W65C02,     "WDC W65C02" },
+    { "w65c02s",    CPU_W65C02S,     "WDC W65C02" },
     { "65ce02",     CPU_65CE02,     "CSG 65CE02" },
     { "2a03",       CPU_2A03,       "Ricoh 2A03/2A07" },
     { "huc6280",    CPU_HUC6280,    "Hudson Soft 6280" },
