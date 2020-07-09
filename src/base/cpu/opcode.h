@@ -49,8 +49,24 @@ typedef struct opcode_table_s {
 } opcode_table_t;
 
 
+typedef struct opcode_data_s {
+    int opc_type;
+    int mne_id;
+    const char *mne_text;
+    int amd_id;
+    int opr_count;
+    const int *opr_sizes;
+} opcode_data_t;
+
+
+
 void opcode_set_cpu_type(cpu_type_t type);
 cpu_type_t opcode_get_cpu_type(void);
+
+const char *opcode_get_mnemonic_text(int opc);
+int opcode_get_mnemonic_id(int opc);
+
+void opcode_get_data(int opc, opcode_data_t *opc_data);
 
 bool opcode_dump_table(void);
 

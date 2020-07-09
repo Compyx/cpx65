@@ -123,3 +123,13 @@ strlist_t *strlist_dup(const strlist_t *slist)
     }
     return newlist;
 }
+
+
+const char *strlist_get_item_at(const strlist_t *slist, size_t index)
+{
+    if (index >= slist->items_used) {
+        return NULL;
+    }
+    return slist->items[index];
+}
+

@@ -34,7 +34,7 @@ static const addrmode_info_t addrmode_info[] = {
     { "iax",    1,  { 2, 0, 0, 0 }, "(absolute,X)" },
     { "zpr",    2,  { 1, 1, 0, 0 }, "zero page, branch" },
     /* HuC6280 additions */
-    { "blk",    3,  { 2, 2, 2, 0 }, "block transfer" },
+    { "blk",    3,  { 2, 2, 2, 0 }, "block transfer: src, dest, len" },
     { "ima",    2,  { 1, 2, 0, 0 }, "immediate, absolute" },
     { "imax",   2,  { 1 ,2, 0, 0 }, "immediate, absolute,X" },
     { "imz",    2,  { 1, 1, 0, 0 }, "immediate, zero page" },

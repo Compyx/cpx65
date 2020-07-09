@@ -2,11 +2,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../base/debug.h"
 #include "../base/cmdline.h"
+#include "../base/mem.h"
 #include "../base/strlist.h"
 #include "../base/cpu/cputype.h"
+#include "../base/cpu/opcode.h"
+#include "../base/io/binfile.h"
+
+
+static long disassemble(const char *path);
 
 
 /** \brief  Option result for -b/--binary
@@ -103,9 +110,11 @@ int main(int argc, char *argv[])
             cpu_id = cpu_type_get_id_by_name(opt_machine);
             if (cpu_id < 0) {
                 printf(" (unknown cpu)\n");
+                retval = EXIT_FAILURE;
             } else {
                 printf(" (id = %d)\n", cpu_id);
             }
+            disassemble(strlist_get_item_at(args, 0));
             break;
         default:
             fprintf(stderr, "%s: unknown cmdline parser exit code %d.\n",
@@ -115,4 +124,133 @@ int main(int argc, char *argv[])
 
     cmdline_exit();
     return retval;
+}
+
+
+
+
+
+static long disassemble(const char *path)
+{
+    long fsize;
+    uint8_t *data = NULL;
+    int address;
+    int index;
+    int count = 0;
+
+    base_debug("Reading '%s'\n", path);
+    fsize = base_binfile_read(path, &data);
+    base_debug("Bytes read = %ld ($%lx)\n", fsize, fsize);
+    if (fsize < 0) {
+        return EXIT_FAILURE;
+    }
+
+    /* determine address */
+    if (opt_address >= 0) {
+        address = opt_address;
+        index = 0;
+    } else {
+        address = data[0] + data[1] * 256;
+        index = 2;
+    }
+
+    /* TODO: guard against buffer overflows! */
+
+    while (count < 256) {
+
+        int opc;
+        int bytes;
+        int b;
+        int i;
+        uint8_t raw_data[8];
+        unsigned int rel_addr;
+
+        opcode_data_t opc_data;
+
+        printf(".%04x  ", (unsigned int)(address));
+
+        /* get opcode */
+        opc = data[index];
+        memcpy(raw_data, data + index, 8);
+        opcode_get_data(opc, &opc_data);
+
+        bytes = 1;
+        for (i = 0; i < 4; i++) {
+            bytes += opc_data.opr_sizes[i];
+        }
+        for (b = 0; b < bytes; b++) {
+            printf("%02x ", data[index + b]);
+        }
+
+        for (i = 0; i < 7 - bytes; i++) {
+            printf("   ");
+        }
+
+
+        /* print mnemonic */
+        printf("%s ", opc_data.mne_text);
+
+        /* print operands */
+        switch (opc_data.amd_id) {
+            case AMD_ACC:   /* fall through */
+            case AMD_IMP:
+                break;
+            case AMD_IMM:
+                printf("#$%02x", raw_data[1]);
+                break;
+            case AMD_ZP:
+                printf("$%02x", raw_data[1]);
+                break;
+            case AMD_ZPX:
+                printf("$%02x,X", raw_data[1]);
+                break;
+            case AMD_ZPY:
+                printf("$%02x,Y", raw_data[1]);
+                break;
+            case AMD_IZX:
+                printf("($%02x,X", raw_data[1]);
+                break;
+            case AMD_IZY:
+                printf("($%02x),Y", raw_data[1]);
+                break;
+            case AMD_ABS:
+                printf("$%02x%02x", raw_data[2], raw_data[1]);
+                break;
+            case AMD_ABX:
+                printf("$%02x%02x,X", raw_data[2], raw_data[1]);
+                break;
+            case AMD_ABY:
+                printf("$%02x%02x,Y", raw_data[2], raw_data[1]);
+                break;
+            case AMD_IAB:
+                printf("($%02x%02x)", raw_data[2], raw_data[1]);
+                break;
+            case AMD_REL:
+                if (raw_data[1] >= 0x80) {
+                    rel_addr = (unsigned int)(address - (0x100 - raw_data[1] - 2));
+                } else {
+                    rel_addr = (unsigned int)(address + raw_data[1] + 2);
+                }
+                printf("$%04x", rel_addr);
+                break;
+
+            default:
+                printf("Unknow addressing mode %d, aborting.\n",
+                        opc_data.amd_id);
+                abort();
+        }
+
+
+        putchar('\n');
+
+        address += bytes;
+        count += bytes;
+        index += bytes;
+    }
+
+
+
+
+    base_free(data);
+    return 0;
 }

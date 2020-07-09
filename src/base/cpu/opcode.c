@@ -1766,3 +1766,36 @@ bool opcode_dump_table(void)
     }
     return true;
 }
+
+
+
+const char *opcode_get_mnemonic_text(int opc)
+{
+    const opcode_t *table = opcode_tables[opcode_cpu_type].table;
+    return mnemonic_get_text(table[opc].mnemonic_id);
+}
+
+
+int opcode_get_mnemonic_id(int opc)
+{
+    const opcode_t *table = opcode_tables[opcode_cpu_type].table;
+    return table[opc].mnemonic_id;
+}
+
+
+void opcode_get_data(int opc, opcode_data_t *opc_data)
+{
+    const opcode_t *table = opcode_tables[opcode_cpu_type].table;
+
+    opc_data->opc_type = table[opc].opcode_type;
+    opc_data->mne_id = table[opc].mnemonic_id;
+    opc_data->mne_text = mnemonic_get_text(table[opc].mnemonic_id);
+    opc_data->amd_id = table[opc].addrmode_id;
+    opc_data->opr_count = addrmode_get_opr_count(opc_data->amd_id);
+    opc_data->opr_sizes = addrmode_get_opr_sizes(opc_data->amd_id);
+}
+
+
+
+
+
