@@ -7,6 +7,8 @@
 #ifndef BASE_CPU_ADDRMODE_H
 #define BASE_CPU_ADDRMODE_H
 
+#include <stdbool.h>
+
 
 /** \brief  Addressing modes
  */
@@ -43,16 +45,22 @@ typedef enum addrmode_id_e {
 #define AMD_MAX    AMD_IMZX
 
 
-/** \brief  Addressing mode description object
+/** \brief  Addressing mode object
  */
-typedef struct addrmode_desc_s {
-    const char *desc_enum;     /**< three letter form as used in #addrmode_id_t */
-    const char *desc_example;  /**< longer, example description */
-} addrmode_desc_t;
+typedef struct addrmode_info_s {
+    const char *desc;       /**< three/four letter form as used in #addrmode_id_t */
+    int oprcount;           /**< operand count */
+    const int oprsizes[4];  /**< operand sizes in bytes */
+    const char *example;    /**< longer, example description */
+} addrmode_info_t;
 
 
-const char *addrmode_get_desc_enum(addrmode_id_t amd);
-const char *addrmode_get_desc_example(addrmode_id_t amd);
+bool        addrmode_is_valid(addrmode_id_t amd);
+const char *addrmode_get_desc(addrmode_id_t amd);
+const char *addrmode_get_example(addrmode_id_t amd);
+int         addrmode_get_opr_count(addrmode_id_t amd);
+const int  *addrmode_get_opr_sizes(addrmode_id_t amd);
+
 
 
 #endif

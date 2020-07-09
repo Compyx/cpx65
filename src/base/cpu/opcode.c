@@ -1756,7 +1756,7 @@ bool opcode_dump_table(void)
             printf("%02lx  %s  %s  %d%c%c\n",
                     opc,
                     mnemonic_get_text(table[opc].mnemonic_id),
-                    addrmode_get_desc_enum(table[opc].addrmode_id),
+                    addrmode_get_desc(table[opc].addrmode_id),
                     table[opc].cycles,
                     table[opc].page ? '*' : ' ',
                     table[opc].branch ? '*' : ' ');
