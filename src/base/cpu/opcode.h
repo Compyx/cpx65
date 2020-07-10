@@ -68,6 +68,8 @@ int opcode_get_mnemonic_id(int opc);
 
 void opcode_get_data(int opc, opcode_data_t *opc_data);
 
+bool opcode_is_branch(int opc);
+
 bool opcode_dump_table(void);
 
 #endif

@@ -26,6 +26,7 @@ static int opt_binary_mode = 0;
 
 static int opt_break_return = 0;
 static int opt_break_undoc = 0;
+static int opt_break_branch = 0;
 static int opt_skip = -1;
 static int opt_number = -1;
 static int opt_address = -1;
@@ -56,6 +57,9 @@ static const cmdline_option_t disasm_cmdline_options[] = {
     { 'u', "break-undoc", NULL, CMDLINE_TYPE_BOOL,
         &opt_break_undoc, (void *)0,
         "Stop disassembly on undocumented opcode (6502/6510 only)" },
+    { 0,  "break-branch", NULL, CMDLINE_TYPE_BOOL,
+        &opt_break_branch, (void *)0,
+        "Stop disassembly on branch instruction" },
     CMDLINE_OPTION_TERMINATOR
 };
 
@@ -114,7 +118,8 @@ int main(int argc, char *argv[])
             } else {
                 printf(" (id = %d)\n", cpu_id);
             }
-            disassemble(strlist_get_item_at(args, 0));
+            printf("disassembled %ld bytes\n",
+                    disassemble(strlist_get_item_at(args, 0)));
             break;
         default:
             fprintf(stderr, "%s: unknown cmdline parser exit code %d.\n",
@@ -144,6 +149,18 @@ static long disassemble(const char *path)
     if (fsize < 0) {
         return EXIT_FAILURE;
     }
+    /* add 8 bytes for overflow */
+    data = base_realloc(data, (size_t)(fsize + 8));
+    memset(data + fsize, 0, 8);
+
+    /* check skip */
+    if (opt_skip > 0) {
+        if (opt_skip >= fsize) {
+            base_free(data);
+            return 0;
+        }
+    }
+
 
     /* determine address */
     if (opt_address >= 0) {
@@ -156,7 +173,7 @@ static long disassemble(const char *path)
 
     /* TODO: guard against buffer overflows! */
 
-    while (count < 256) {
+    while (true) {
 
         int opc;
         int bytes;
@@ -164,8 +181,15 @@ static long disassemble(const char *path)
         int i;
         uint8_t raw_data[8];
         unsigned int rel_addr;
-
         opcode_data_t opc_data;
+
+        if (count >= fsize) {
+            break;
+        }
+
+        if (opt_number > 0 && count >= opt_number) {
+            break;
+        }
 
         printf(".%04x  ", (unsigned int)(address));
 
@@ -243,14 +267,30 @@ static long disassemble(const char *path)
 
         putchar('\n');
 
+        /* break on undoc */
+        if (opt_break_undoc && opc_data.opc_type != OPC_TYPE_NORMAL) {
+            printf("Found undocumented opcode $%02x, breaking\n", opc);
+            break;
+        }
+
+        /* break on rts/rti */
+        if (opt_break_return && (opc == 0x40  || opc == 0x60)) {
+            printf("Found RTI/RTS, breaking\n");
+            break;
+        }
+
+        /* break on branch */
+        if (opt_break_branch && opcode_is_branch(opc)) {
+            printf("Got branch\n");
+            break;
+        }
+
+
         address += bytes;
         count += bytes;
         index += bytes;
     }
 
-
-
-
     base_free(data);
-    return 0;
+    return count;
 }

@@ -8,6 +8,7 @@
  * \note    MNE_BRA (BRanch Always) ($80): this instruction always branches and
  *          thus I've set the base cycle count to 3 and the add-cycle-on branch
  *          to 0. Other branch instructions have the usual { 2, 1 }.
+ *          Seems to be $12 for DTV
  */
 
 #include <stdio.h>
@@ -1797,5 +1798,55 @@ void opcode_get_data(int opc, opcode_data_t *opc_data)
 
 
 
+/** \brief  Check if opcode \a opc is a branch instrunction for the current CPU
+ *
+ * \param[in]   opc opcode
+ *
+ * \return  bool
+ */
+bool opcode_is_branch(int opc)
+{
 
+    int mne_id = opcode_get_mnemonic_id(opc);
+    bool result = false;
+#if 0
+    base_debug("Got MNE %d (%s)\n", mne_id, opcode_get_mnemonic_text(opc));
+#endif
+    switch (mne_id) {
+        case MNE_BBR:   /* fall through */
+        case MNE_BBR0:  /* fall through */
+        case MNE_BBR1:  /* fall through */
+        case MNE_BBR2:  /* fall through */
+        case MNE_BBR3:  /* fall through */
+        case MNE_BBR4:  /* fall through */
+        case MNE_BBR5:  /* fall through */
+        case MNE_BBR6:  /* fall through */
+        case MNE_BBR7:  /* fall through */
+        case MNE_BBS:   /* fall through */
+        case MNE_BBS0:  /* fall through */
+        case MNE_BBS1:  /* fall through */
+        case MNE_BBS2:  /* fall through */
+        case MNE_BBS3:  /* fall through */
+        case MNE_BBS4:  /* fall through */
+        case MNE_BBS5:  /* fall through */
+        case MNE_BBS6:  /* fall through */
+        case MNE_BBS7:  /* fall through */
+        case MNE_BCC:   /* fall through */
+        case MNE_BCS:   /* fall through */
+        case MNE_BEQ:   /* fall through */
+        case MNE_BMI:   /* fall through */
+        case MNE_BNE:   /* fall through */
+        case MNE_BPL:   /* fall through */
+        case MNE_BRA:   /* fall through */
+        case MNE_BSR:   /* fall through */
+        case MNE_BVC:   /* fall through */
+        case MNE_BVS:   /* fall through */
+            result = true;
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
 
