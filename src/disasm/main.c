@@ -218,11 +218,19 @@ static long disassemble(const char *path)
 
 
     /* determine address */
-    if (opt_address >= 0) {
-        address = opt_address;
-        index = 0;
+    if (opt_binary_mode) {
+        if (opt_address >= 0) {
+            address = opt_address;
+        } else {
+            address = 0;
+        }
+        index= 0;
     } else {
-        address = data[0] + data[1] * 256;
+        if (opt_address >= 0) {
+            address = opt_address;
+        } else {
+            address = data[0] + data[1] * 256;
+        }
         index = 2;
     }
 
