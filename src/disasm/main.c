@@ -13,6 +13,8 @@
 #include "../base/io/binfile.h"
 
 
+/* Forward declarations
+ */
 static long disassemble(const char *path);
 
 
@@ -24,12 +26,62 @@ static long disassemble(const char *path);
  */
 static int opt_binary_mode = 0;
 
+/** \brief  Option result for -r/--break-return
+ *
+ * Stop disassembling on RTS/RTI.
+ *
+ * Default = false
+ */
 static int opt_break_return = 0;
+
+/** \brief  Option result for -u/--break-undoc
+ *
+ * Stop disassembling on undocumented opcode (65xx, 2a03/2a07).
+ *
+ * Default = false
+ */
 static int opt_break_undoc = 0;
+
+/** \brief  Option result for --break-branch
+ *
+ * Stop disassembling on branch instruction.
+ *
+ * Default = false
+ */
 static int opt_break_branch = 0;
+
+/** \brief  Option result for -s/--skip
+ *
+ * Skip bytes from binary start to start disassembly.
+ *
+ * Default = false (-1)
+ */
 static int opt_skip = -1;
+
+/** \brief  Option result for -n/--number
+ *
+ * Set number of bytes to disassemble.
+ *
+ * Default = all (-1)
+ */
 static int opt_number = -1;
+
+/** \brief  Option result for -a/--address
+ *
+ * Override disassemble address display.
+ *
+ * Default = false (-1)
+ */
 static int opt_address = -1;
+
+/** \brief  Option result for -m/--machine
+ *
+ * Set CPU/machine type.
+ *
+ * Default = 65xx (6502 with undocumented opcodes)
+ *
+ * \todo    Properly support
+ */
 static const char *opt_machine = NULL;
 
 
@@ -132,9 +184,12 @@ int main(int argc, char *argv[])
 }
 
 
-
-
-
+/** \brief  Disassemble file \a path
+ *
+ * \param[in]   path    path to file to disassemble
+ *
+ * \return  number of bytes processed or -1 on error
+ */
 static long disassemble(const char *path)
 {
     long fsize;
