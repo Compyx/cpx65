@@ -44,21 +44,44 @@ unit_module_t symtab_module = {
 
 static bool test_add_symbols(int *total, int *passed)
 {
-    symtab_node_t *root = NULL;
+    symtab_t table;
+    symtab_node_t *result;
     size_t i;
 
     const char *labels[] = {
         "foo", "bar", "huppel", "compyx", "is", "very", "great", "and", "awesome"
     };
 
-    for (i = 0; i < BASE_ARRAY_SIZE(labels); i++) {
-        printf(".. adding '%s'\n", labels[i]);
-        root = symtab_node_add(root, labels[i]);
-    }
-    symtab_node_dump(root);
-    symtab_node_free(root);
+    symtab_init(&table);
 
     (*total)++;
+    for (i = 0; i < BASE_ARRAY_SIZE(labels); i++) {
+        printf("...... adding '%s' .. ", labels[i]);
+        result = symtab_add(&table, labels[i]);
+        if (result == NULL) {
+            /* unexpected failure */
+            printf("failed!\n");
+            symtab_free(&table);
+            return false;
+        }
+        printf("OK.\n");
+    }
+    printf("...... dumping symbols in order:\n");
+    symtab_dump(&table);
     (*passed)++;
+
+    /* add existing symbol: expected result: fail */
+    (*total)++;
+    printf("...... adding existing symbol 'compyx' .. ");
+    result = symtab_add(&table, "compyx");
+    if (result != NULL) {
+        printf("OK (unexpected, failure)\n");
+    } else {
+        printf("failed (expected, OK)\n");
+        (*passed)++;
+    }
+
+    symtab_free(&table);
+
     return true;
 }

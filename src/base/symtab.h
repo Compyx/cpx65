@@ -25,9 +25,21 @@ typedef struct symtab_node_s {
     int type;
 } symtab_node_t;
 
+typedef struct symtab_s {
+    symtab_node_t *root;
+} symtab_t;
+
+
 
 symtab_node_t *symtab_node_add(symtab_node_t *node, const char *name);
 void symtab_node_free(symtab_node_t *node);
 void symtab_node_dump(symtab_node_t *node);
+
+
+void symtab_init(symtab_t *table);
+void symtab_free(symtab_t *table);
+
+symtab_node_t *symtab_add(symtab_t *symtab, const char *name);
+void symtab_dump(symtab_t *table);
 
 #endif

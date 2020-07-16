@@ -80,19 +80,21 @@ symtab_node_t *symtab_node_add(symtab_node_t *node, const char *name)
     int d;
 
     if (node == NULL) {
-        /* new node */
         node = symtab_node_alloc(name);
-    } else if ((d = strcmp(name, node->name)) == 0) {
-        base_debug("Name conflict!\n");
-        abort();
-    } else if (d < 0) {
-        base_debug("new('%s') < root('%s')\n", name, node->name);
-        node->left = symtab_node_add(node->left, name);
-        node->parent = node->left;
     } else {
-        base_debug("new('%s') > root('%s')\n", name, node->name);
-        node->right = symtab_node_add(node->right, name);
-        node->parent = node->right;
+        d = strcmp(name, node->name);
+        if (d == 0) {
+            abort();
+        }
+        if (d < 0) {
+            /* base_debug("new('%s') < root('%s')\n", name, node->name); */
+            node->left = symtab_node_add(node->left, name);
+            node->parent = node->left;
+        } else {
+            /* base_debug("new('%s') > root('%s')\n", name, node->name); */
+            node->right = symtab_node_add(node->right, name);
+            node->parent = node->right;
+        }
     }
     return node;
 }
@@ -113,3 +115,40 @@ void symtab_node_dump(symtab_node_t *node)
 
 
 
+
+void symtab_init(symtab_t *table)
+{
+    table->root = NULL;
+}
+
+
+void symtab_free(symtab_t *table)
+{
+    if (table->root != NULL) {
+        symtab_node_free(table->root);
+    }
+    table->root = NULL;
+}
+
+
+symtab_node_t *symtab_add(symtab_t *table, const char *name)
+{
+    symtab_node_t *node;
+
+
+    if (table->root == NULL) {
+        node = symtab_node_alloc(name);
+    } else {
+        node = symtab_node_add(table->root, name);
+    }
+    if (node != NULL) {
+        table->root = node;
+    }
+    return node;
+}
+
+
+void symtab_dump(symtab_t *table)
+{
+    symtab_node_dump(table->root);
+}
