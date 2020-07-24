@@ -29,13 +29,13 @@ BASE_CPU_OBJS = addrmode.o cputype.o mnemonic.o opcode.o
 BASE_IO_OBJS = binfile.o txtfile.o
 
 # objects in src/base and its subdirs
-BASE_OBJS = cmdline.o strlist.o mem.o error.o objpool.o symtab.o \
+BASE_OBJS = cmdline.o strlist.o mem.o error.o objpool.o strpool.o symtab.o \
 	    $(BASE_CPU_OBJS) \
 	    $(BASE_IO_OBJS)
 
 # objects in src/tests
 TEST_OBJS = unit.o test_cpu.o test_mem.o test_objpool.o test_io.o \
-	    test_symtab.o \
+	    test_symtab.o test_strpool.o \
 	    test_unittest.o
 
 

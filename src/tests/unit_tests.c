@@ -23,6 +23,7 @@
 #include "test_cpu.h"
 #include "test_io.h"
 #include "test_symtab.h"
+#include "test_strpool.h"
 
 
 /** \brief  Option result object for -m/--list-modules
@@ -73,6 +74,7 @@ static void register_modules(void)
     unit_module_add(&cpu_module);
     unit_module_add(&io_module);
     unit_module_add(&symtab_module);
+    unit_module_add(&strpool_module);
 
 }
 

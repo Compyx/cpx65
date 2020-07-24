@@ -131,8 +131,6 @@ void *objpool_request(objpool_t *pool, size_t size, void *param)
 {
     void *obj = NULL;
 
-    (void)(size);
-
     pool->requests_total++;
 
     base_debug("New object requested with size %zu:", size);
@@ -142,7 +140,23 @@ void *objpool_request(objpool_t *pool, size_t size, void *param)
         objpool_add_active(pool, obj);
     } else {
         base_debug("Checking inactive objects list for suitable object:");
-        obj = pool->obj_inactive_list[--(pool->obj_inactive_used)];
+
+        if (pool->obj_size_cb != NULL) {
+
+            /* try to find the first item with enough size */
+            base_debug("Size comparison requested:\n");
+            for (size_t i = 0; pool->obj_inactive_used; i++) {
+                size_t curr_size = pool->obj_size_cb(pool->obj_inactive_list[i]);
+                base_debug("new obj size() = %zu, list obj size - %zu\n",
+                        size, curr_size);
+                if (size <= curr_size) {
+                    base_debug("found entry at %zu\n", i);
+                }
+            }
+            base_debug("Couldn't find a suitable item, allocating new one\n");
+        } else {
+            obj = pool->obj_inactive_list[--(pool->obj_inactive_used)];
+        }
         pool->obj_reuse_cb(obj, param);
     }
     return obj;
