@@ -12,7 +12,27 @@
 #include <stdbool.h>
 
 
+/** \brief  Housekeeping data for each objpool object
+ *
+ * To speed up code and to simplify the API for modules using an obpool, we
+ * use some housekeeping data.
+ *
+ * * pool:  The pool containing the object
+ * * index: Index in the pool of the object
+ */
+#define OBJ_POOL_OBJ_BASE \
+    struct objpool_s *pool; \
+    size_t index;
+
+
 /** \brief  Object pool object
+ */
+typedef struct objpool_obj_s {
+    OBJ_POOL_OBJ_BASE
+} objpool_obj_t;
+
+
+/** \brief  Object pool
  *
  */
 typedef struct objpool_s {

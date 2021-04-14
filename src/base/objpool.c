@@ -18,6 +18,22 @@
 #include "objpool.h"
 
 
+/** \brief  Set base data of \a obj
+ *
+ * \param[in]   obj     object
+ * \param[in]   pool    object pool of \a obj
+ * \param[in]   index   index of \a obj in \a pool
+ */
+static void objpool_object_set_base(objpool_obj_t *obj,
+                                    objpool_t *pool,
+                                    size_t index)
+{
+    obj->pool = pool;
+    obj->index = index;
+}
+
+
+
 /** \brief  Initialize \a pool for use
  *
  * Initializes \a pool by allocating the active and inactive objects list and
@@ -79,8 +95,10 @@ void objpool_free(objpool_t *pool)
     /* free inactive object list and its objects */
     base_debug("Freeing inactive object list:");
     for (size_t i = 0; i < pool->obj_inactive_used; i++) {
-        base_debug("Calling obj_free(%zu).", i);
-        pool->obj_free_cb(pool->obj_inactive_list[i]);
+        if (pool->obj_inactive_list[i] != NULL) {
+            base_debug("Calling obj_free(%zu).", i);
+            pool->obj_free_cb(pool->obj_inactive_list[i]);
+        }
     }
     base_free(pool->obj_inactive_list);
 
@@ -109,6 +127,10 @@ static void *objpool_add_active(objpool_t *pool, void *obj)
         pool->obj_active_size *= 2;
         pool->requests_resizes++;
     }
+
+    /* initialize housekeeping data */
+    objpool_object_set_base(obj, pool, pool->obj_active_used);
+
     pool->obj_active_list[pool->obj_active_used++] = obj;
     return obj;
 }
@@ -137,7 +159,7 @@ void *objpool_request(objpool_t *pool, size_t size, void *param)
     if (pool->obj_inactive_used == 0) {
         base_debug("No inactive object, allocate new object:");
         obj = pool->obj_alloc_cb(param);
-        objpool_add_active(pool, obj);
+           objpool_add_active(pool, obj);
     } else {
         base_debug("Checking inactive objects list for suitable object:");
 
@@ -182,7 +204,11 @@ void objpool_release(objpool_t *pool, void *obj)
         pool->obj_free_cb(obj);
         pool->requests_frees++;
     } else {
-        base_debug("Scanning free list:\n");
+        base_debug("Adding to free list:\n");
+        /* FIXME: remove from active list */
+
+
+        objpool_object_set_base(obj, pool, pool->obj_inactive_used);
         pool->obj_inactive_list[pool->obj_inactive_used++] = obj;
     }
 }

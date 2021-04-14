@@ -29,17 +29,28 @@ static bool setup(void);
 static bool teardown(void);
 
 static bool test_add(int *total, int *passed);
+static bool test_del(int *total, int *passed);
 
 
 static char *list1[] = {
-    "compyx", "fucking", "rules", "and", "that's", "true", "also large string",
-    "more", "bla", "iweurowieuroiuweorewr", "erwerwer"
+    "compyx",
+    "fucking",
+    "rules",
+    "and",
+    "that's",
+    "true",
+    "also large string",
+    "more",
+    "bla",
+    "iweurowieuroiuweorewr",
+    "erwerwer"
 };
 
 
 
 static unit_test_t tests[] = {
     { "add", "Test adding strings", test_add, false },
+    { "del", "Test deleting strings", test_del, false },
     { NULL, NULL, NULL, false }
 };
 
@@ -96,7 +107,7 @@ static bool test_add(int *total, int *passed)
     size_t i;
     void *obj;
 
-    *total += 1;
+    (*total)++;
 
     for (i = 0; i < sizeof list1 / sizeof list1[0]; i++) {
         printf(".... adding '%s':\n", list1[i]);
@@ -104,8 +115,26 @@ static bool test_add(int *total, int *passed)
         used_objects_add(obj);
     }
 
+    strpool_dump_stats();
 
-    *passed += 1;
+    (*passed)++;
+    return true;
+}
+
+
+
+static bool test_del(int *total, int *passed)
+{
+    void *obj;
+
+    (*total)++;
+
+    obj = used_objects_list[0];
+    strpool_del(obj);
+    used_objects_list[0] = NULL;
+
+
+    (*passed)++;
     return true;
 }
 

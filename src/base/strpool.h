@@ -16,6 +16,7 @@
  * when len+1 isn't a power of two.
  */
 typedef struct strpool_obj_s {
+    OBJ_POOL_OBJ_BASE
     char *  text;   /**< text */
     size_t  size;   /**< number of bytes allocated text */
     size_t  len;    /**< actual string length of text */
@@ -23,8 +24,10 @@ typedef struct strpool_obj_s {
 
 void strpool_init(void);
 void strpool_free(void);
+void strpool_dump_stats(void);
 
 void *strpool_add(char *text);
+void strpool_del(void *obj);
 
 
 #endif

@@ -71,10 +71,17 @@ static void *strpool_obj_alloc(void *param)
  */
 static void strpool_obj_free(void *obj)
 {
-    strpool_obj_t *s= obj;
+    strpool_obj_t *s = obj;
 
-    base_free(s->text);
-    base_free(s);
+    if (obj == NULL) {
+        fprintf(stderr, "%s:%d:%s*(): got NULL ?\n",
+                __FILE__, __LINE__, __func__);
+    } else {
+        if (s->text != NULL) {
+            base_free(s->text);
+        }
+        base_free(s);
+    }
 }
 
 
@@ -128,4 +135,17 @@ void *strpool_add(char *text)
 
     obj = objpool_request(&strpool_data, len + 1, text);
     return obj;
+}
+
+
+void strpool_del(void *obj)
+{
+    objpool_release(&strpool_data, obj);
+}
+
+
+
+void strpool_dump_stats(void)
+{
+    objpool_dump_stats(&strpool_data);
 }
