@@ -295,7 +295,7 @@ static long disassemble(const char *path)
                 printf("$%02x,Y", raw_data[1]);
                 break;
             case AMD_IZX:
-                printf("($%02x,X", raw_data[1]);
+                printf("($%02x,X)", raw_data[1]);
                 break;
             case AMD_IZY:
                 printf("($%02x),Y", raw_data[1]);

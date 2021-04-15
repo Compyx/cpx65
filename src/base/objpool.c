@@ -206,7 +206,7 @@ void objpool_release(objpool_t *pool, void *obj)
     } else {
         base_debug("Adding to free list:\n");
         /* FIXME: remove from active list */
-
+        
 
         objpool_object_set_base(obj, pool, pool->obj_inactive_used);
         pool->obj_inactive_list[pool->obj_inactive_used++] = obj;

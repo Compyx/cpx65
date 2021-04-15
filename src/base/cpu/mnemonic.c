@@ -72,10 +72,11 @@ static const char *mnemonic_text[] = {
     "rla", "rmb", "rmb0", "rmb1", "rmb2", "rmb3", "rmb4", "rmb5", "rmb6",
     "rmb7", "rol", "ror", "rra", "rti", "rts",
     /* S */
-    "st0", "st1", "st2",    /* Huc6270 VDC control */
     "sax", "sax", "sbc", "sbx", "sec", "sed", "sei", "set", "sha", "shx", "shy",
     "slo", "smb", "smb0", "smb1", "smb2", "smb3", "smb4", "smb5", "smb6",
-    "smb7", "sre", "sta", "stp", "stx", "sty", "stz", "sxy",
+    "smb7", "sre",
+    "st0", "st1", "st2",    /* Huc6270 VDC control */
+    "sta", "stp", "stx", "sty", "stz", "sxy",
     /* T */
     "tai", "tam", "tas", "tax", "tay", "tdd", "tia", "tii", "tin", "tma",
     "trb", "tsb", "tst", "tsx", "txa", "txs", "tya",
