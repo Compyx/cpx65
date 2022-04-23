@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   unit_tests.c
  * \brief   Unit testing binary
  */
@@ -145,5 +143,3 @@ int main(int argc, char *argv[])
     cmdline_exit();
     return retval;
 }
-
-

@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   main.c
  * \brief   Main entry point, currently used for some test code
  */
@@ -129,4 +127,3 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
-

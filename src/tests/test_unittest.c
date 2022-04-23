@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   test_unittest.c
  * \brief   Test the unit testing itself
  */
@@ -124,4 +122,3 @@ static bool test_failing_fatal(int *total, int *passed)
     (void)passed;
     return false;
 }
-

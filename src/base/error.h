@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   error.h
  * \brief   Error hanlding/reporting - header
  */
@@ -47,4 +45,3 @@ extern int base_errno;
 const char *base_strerror(int err);
 
 #endif
-

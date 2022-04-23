@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   test_cpu.h
  * \brief   Unit tests for base/cpu/ - header
  */
@@ -9,7 +7,6 @@
 
 #include "unit.h"
 
-unit_module_t cpu_module;
-
+extern unit_module_t cpu_module;
 
 #endif

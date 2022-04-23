@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   test_mem.h
  * \brief   Unit tests for base/mem.c - header
  */

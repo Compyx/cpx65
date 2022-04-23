@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   convert.h
  * \brief   Type conversion macros
  * \ingroup base
@@ -7,7 +5,6 @@
 
 #ifndef BASE_CONVERT_H
 #define BASE_CONVERT_H
-
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -40,7 +37,6 @@
  * \param[in]   P   pointer value
  */
 #define base_ptr_to_uint(P) ((unsigned int)(uintptr_t)(P))
-
 
 
 #endif

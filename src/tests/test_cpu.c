@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   test_cpu.c
  * \brief   Unit tests for base/cpu/
  *
@@ -37,7 +35,7 @@ static unit_test_t tests[] = {
 
 /** \brief  Public unit test module
  */
-unit_module_t cpu_module= {
+unit_module_t cpu_module = {
     "cpu",
     "Test base/cpu/*",
     NULL, NULL,

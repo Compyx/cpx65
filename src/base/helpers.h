@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   helpers.h
  * \brief   Helper macros
  */
@@ -21,5 +19,3 @@
 #define BASE_ARRAY_SIZE(ARR) (sizeof ARR / sizeof ARR[0])
 
 #endif
-
-

@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   test_strpool.c
  * \brief   Unit tests for strpool.c
  */
@@ -137,4 +135,3 @@ static bool test_del(int *total, int *passed)
     (*passed)++;
     return true;
 }
-

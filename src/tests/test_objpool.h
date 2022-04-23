@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   test_objpool.h
  * \brief   Test object pool handling - header
  */
@@ -12,5 +10,3 @@
 extern unit_module_t objpool_module;
 
 #endif
-
-

@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   objpool.h
  * \brief   Module to reuse heap-allocated objects - header
  */
@@ -95,4 +93,5 @@ void    objpool_free(objpool_t *pool);
 void *  objpool_request(objpool_t *pool, size_t size, void *data);
 void    objpool_release(objpool_t *pool, void *obj);
 void    objpool_dump_stats(const objpool_t *pool);
+
 #endif

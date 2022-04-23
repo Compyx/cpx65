@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   strlist.h
  * \brief   Heap-allocated list of strings - header
  * \ingroup base
@@ -29,5 +27,3 @@ void        strlist_dump(const strlist_t *slist);
 const char *strlist_get_item_at(const strlist_t *slist, size_t index);
 
 #endif
-
-

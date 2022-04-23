@@ -60,6 +60,7 @@ $(BIN_TESTS): src/tests/unit_tests.o $(BASE_OBJS) $(TEST_OBJS)
 clean:
 	rm -f *.o
 	rm -f $(BASE_OBJS) $(TEST_OBJS)
+	rm -f src/asm/main.o src/disasm/main.o src/tests/unit_tests.o
 	rm -f $(BIN_ASM) $(BIN_DISASM) $(BIN_LD) $(BIN_TESTS)
 
 

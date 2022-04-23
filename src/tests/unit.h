@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   unit.h
  * \brief   Unit testing module - header
  */
@@ -51,4 +49,3 @@ bool unit_module_run_all(void);
 void unit_dump_results(void);
 
 #endif
-
