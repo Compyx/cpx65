@@ -28,6 +28,8 @@
  * A simple 'string' object
  */
 typedef struct string_obj_test_s {
+    /* required 'base class' members */
+    OBJ_POOL_OBJ_BASE
     char *  text;   /**< memory allocated for a string */
     size_t  size;   /**< size of memory allocated for 'text' */
     size_t  len;    /**< actual length of string in 'text' */
@@ -212,7 +214,7 @@ static bool test_item_reuse(int *total, int *passed)
     int k;
     char *strings[]= {
         "compyx", "fucking", "rules", "and", "don't you forget it",
-        "you bastardo!", "pummikl", "pielel", NULL
+        "you bastardo!", "pummekl", "piemel", NULL
     };
 
 
