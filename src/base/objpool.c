@@ -43,30 +43,28 @@ void objpool_init(objpool_t *pool)
 {
     base_debug("Called.");
     assert(pool != NULL);
-    assert(pool->obj_active_size > 0);
-    assert(pool->obj_inactive_size > 0);
-    assert(pool->obj_alloc_cb != NULL);
-    assert(pool->obj_reuse_cb != NULL);
-    assert(pool->obj_free_cb != NULL);
+    assert(pool->active_size > 0);
+    assert(pool->inactive_size > 0);
+    assert(pool->alloc_cb != NULL);
+    assert(pool->reuse_cb != NULL);
+    assert(pool->free_cb != NULL);
 
     /* initialize fields */
-    pool->obj_active_used = 0;
-    pool->obj_inactive_used = 0;
+    pool->active_used = 0;
+    pool->inactive_used = 0;
     pool->requests_total = 0;
     pool->requests_from_pool = 0;
     pool->requests_resizes = 0;
     pool->requests_frees = 0;
 
     /* allocate and initialize arrays */
-    pool->obj_active_list = base_malloc(pool->obj_active_size *
-            sizeof *(pool->obj_active_list));
-    for (size_t i = 0; i < pool->obj_active_size; i++) {
-        pool->obj_active_list[i] = NULL;
+    pool->active_list = base_malloc(pool->active_size * sizeof *(pool->active_list));
+    for (size_t i = 0; i < pool->active_size; i++) {
+        pool->active_list[i] = NULL;
     }
-    pool->obj_inactive_list = base_malloc(pool->obj_inactive_size *
-            sizeof *(pool->obj_inactive_list));
-    for (size_t i = 0; i < pool->obj_inactive_size; i++) {
-        pool->obj_inactive_list[i] = NULL;
+    pool->inactive_list = base_malloc(pool->inactive_size * sizeof *(pool->inactive_list));
+    for (size_t i = 0; i < pool->inactive_size; i++) {
+        pool->inactive_list[i] = NULL;
     }
 }
 
@@ -84,21 +82,21 @@ void objpool_free(objpool_t *pool)
 
     /* free active object list and its objects */
     base_debug("Freeing active object list:");
-    for (size_t i = 0; i < pool->obj_active_used; i++) {
+    for (size_t i = 0; i < pool->active_used; i++) {
         base_debug("Calling obj_free(%zu).", i);
-        pool->obj_free_cb(pool->obj_active_list[i]);
+        pool->free_cb(pool->active_list[i]);
     }
-    base_free(pool->obj_active_list);
+    base_free(pool->active_list);
 
     /* free inactive object list and its objects */
     base_debug("Freeing inactive object list:");
-    for (size_t i = 0; i < pool->obj_inactive_used; i++) {
-        if (pool->obj_inactive_list[i] != NULL) {
+    for (size_t i = 0; i < pool->inactive_used; i++) {
+        if (pool->inactive_list[i] != NULL) {
             base_debug("Calling obj_free(%zu).", i);
-            pool->obj_free_cb(pool->obj_inactive_list[i]);
+            pool->free_cb(pool->inactive_list[i]);
         }
     }
-    base_free(pool->obj_inactive_list);
+    base_free(pool->inactive_list);
 
 }
 
@@ -115,21 +113,21 @@ static void *objpool_add_active(objpool_t *pool, void *obj)
     base_debug("Called:");
 
     /* do we need to resize the array? */
-    if (pool->obj_active_used == pool->obj_active_size) {
+    if (pool->active_used == pool->active_size) {
         /* resize array */
-        base_debug("Resizing list to %lu items.",
-                pool->obj_active_size * 2);
-        pool->obj_active_list = base_realloc(
-                pool->obj_active_list,
-                pool->obj_active_size * 2 * sizeof *(pool->obj_active_list));
-        pool->obj_active_size *= 2;
+        pool->active_size *= 2;
+        base_debug("Resizing list to %lu items.", pool->active_size);
+        pool->active_list = base_realloc(
+                pool->active_list,
+                pool->active_size * sizeof *(pool->active_list));
         pool->requests_resizes++;
     }
 
     /* initialize housekeeping data */
-    objpool_object_set_base(obj, pool, pool->obj_active_used);
+    objpool_object_set_base(obj, pool, pool->active_used);
 
-    pool->obj_active_list[pool->obj_active_used++] = obj;
+    /* add object to list */
+    pool->active_list[pool->active_used++] = obj;
     return obj;
 }
 
@@ -154,19 +152,19 @@ void *objpool_request(objpool_t *pool, size_t size, void *param)
     pool->requests_total++;
 
     base_debug("New object requested with size %zu:", size);
-    if (pool->obj_inactive_used == 0) {
+    if (pool->inactive_used == 0) {
         base_debug("No inactive object, allocate new object:");
-        obj = pool->obj_alloc_cb(param);
-           objpool_add_active(pool, obj);
+        obj = pool->alloc_cb(param);
+        objpool_add_active(pool, obj);
     } else {
         base_debug("Checking inactive objects list for suitable object:");
 
-        if (pool->obj_size_cb != NULL) {
+        if (pool->size_cb != NULL) {
 
             /* try to find the first item with enough size */
             base_debug("Size comparison requested:\n");
-            for (size_t i = 0; pool->obj_inactive_used; i++) {
-                size_t curr_size = pool->obj_size_cb(pool->obj_inactive_list[i]);
+            for (size_t i = 0; pool->inactive_used; i++) {
+                size_t curr_size = pool->size_cb(pool->inactive_list[i]);
                 base_debug("new obj size() = %zu, list obj size - %zu\n",
                         size, curr_size);
                 if (size <= curr_size) {
@@ -175,9 +173,9 @@ void *objpool_request(objpool_t *pool, size_t size, void *param)
             }
             base_debug("Couldn't find a suitable item, allocating new one\n");
         } else {
-            obj = pool->obj_inactive_list[--(pool->obj_inactive_used)];
+            obj = pool->inactive_list[--(pool->inactive_used)];
         }
-        pool->obj_reuse_cb(obj, param);
+        pool->reuse_cb(obj, param);
     }
     return obj;
 }
@@ -196,18 +194,18 @@ void objpool_release(objpool_t *pool, void *obj)
     base_debug("Called.");
 
 
-    if (pool->obj_inactive_size == pool->obj_inactive_used) {
+    if (pool->inactive_size == pool->inactive_used) {
         base_debug("Free list full\n");
-        /* TODO: check size and free the smallest item */
-        pool->obj_free_cb(obj);
+        /* TODO: check size and free the smallest item? */
+        pool->free_cb(obj);
         pool->requests_frees++;
     } else {
         base_debug("Adding to free list:\n");
         /* FIXME: remove from active list */
-        
 
-        objpool_object_set_base(obj, pool, pool->obj_inactive_used);
-        pool->obj_inactive_list[pool->obj_inactive_used++] = obj;
+
+        objpool_object_set_base(obj, pool, pool->inactive_used);
+        pool->inactive_list[pool->inactive_used++] = obj;
     }
 }
 
@@ -218,16 +216,25 @@ void objpool_release(objpool_t *pool, void *obj)
  */
 void objpool_dump_stats(const objpool_t *pool)
 {
-    printf("active objects: %zu/%zu (%.2f)\n",
-            pool->obj_active_used,
-            pool->obj_active_size,
-            (float)(pool->obj_active_used) / (float)(pool->obj_active_size)
-            * 100.0);
+    printf("active objects: %zu/%zu (%.2f%%)\n",
+            pool->active_used,
+            pool->active_size,
+            (double)(pool->active_used) / (double)(pool->active_size) * 100.0);
     printf("active ojects array resize count: %lu\n", pool->requests_resizes);
-    printf("inactive objects: %zu/%zu (%.2f)\n",
-            pool->obj_inactive_used,
-            pool->obj_inactive_size,
-            (float)(pool->obj_inactive_used) / (float)(pool->obj_inactive_size)
-            * 100.0);
 
+    printf("list = [");
+    for (size_t i = 0; i < pool->active_size; i++) {
+        putchar(pool->active_list[i] != NULL ? '*' : '-');
+    }
+    printf("]\n");
+
+    printf("inactive objects: %zu/%zu (%.2f%%)\n",
+            pool->inactive_used,
+            pool->inactive_size,
+            (double)(pool->inactive_used) / (double)(pool->inactive_size) * 100.0);
+    printf("list = [");
+    for (size_t i = 0; i < pool->inactive_size; i++) {
+        putchar(pool->inactive_list[i] != NULL ? 'X' : '-');
+    }
+    printf("]\n");
 }
