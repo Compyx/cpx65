@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   cputypes.c
  * \brief   CPU types
  */
@@ -83,4 +81,3 @@ int cpu_type_get_id_by_name(const char *name)
     }
     return -1;
 }
-

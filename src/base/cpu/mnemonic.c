@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   mnemonic.c
  * \brief   Mnemonics
  */
@@ -149,4 +147,3 @@ mnemonic_id_t mnemonic_get_id(const char *text)
     }
     return (const char **)result - mnemonic_text;
 }
-

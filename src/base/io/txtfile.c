@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   txtfile.c
  * \brief   Text file handling
  * \ingroup base

@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   addrmode.h
  * \brief   Addressing modes - header
  */
@@ -60,7 +58,5 @@ const char *addrmode_get_desc(addrmode_id_t amd);
 const char *addrmode_get_example(addrmode_id_t amd);
 int         addrmode_get_opr_count(addrmode_id_t amd);
 const int  *addrmode_get_opr_sizes(addrmode_id_t amd);
-
-
 
 #endif

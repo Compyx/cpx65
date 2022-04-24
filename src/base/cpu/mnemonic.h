@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   mnemonic.h
  * \brief   Mnemonics - header
  */
@@ -72,6 +70,5 @@ typedef enum mnemonic_id_e {
 const char *mnemonic_get_text(mnemonic_id_t id);
 
 mnemonic_id_t mnemonic_get_id(const char *text);
-
 
 #endif

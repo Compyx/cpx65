@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   opcode.c
  * \brief   Opcode tables
  *
@@ -1849,4 +1847,3 @@ bool opcode_is_branch(int opc)
 
     return result;
 }
-

@@ -1,5 +1,3 @@
-/* vim: set et ts=4 sw=4 sts=4 fdm=marker syntax=c.doxygen: */
-
 /** \file   binfile.c
  * \brief   Raw binary file handling
  * \ingroup base
