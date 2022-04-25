@@ -56,7 +56,7 @@ void strlist_free(strlist_t *slist)
  *
  * \return  number of items in the list
  */
-size_t strlist_num_items(const strlist_t *slist)
+size_t strlist_len(const strlist_t *slist)
 {
     return slist->items_used;
 }
@@ -123,7 +123,14 @@ strlist_t *strlist_dup(const strlist_t *slist)
 }
 
 
-const char *strlist_get_item_at(const strlist_t *slist, size_t index)
+/** \brief  Get item in strlist by index
+ *
+ * \param[in]   slist   string list
+ * \param[in]   index   index in \a slist
+ *
+ * \return  item or `NULL` on when \a index is out of bounds
+ */
+const char *strlist_item(const strlist_t *slist, size_t index)
 {
     if (index >= slist->items_used) {
         return NULL;

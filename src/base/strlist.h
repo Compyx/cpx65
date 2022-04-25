@@ -21,9 +21,9 @@ typedef struct strlist_s {
 strlist_t * strlist_init(void);
 void        strlist_free(strlist_t *list);
 strlist_t * strlist_dup(const strlist_t *slist);
-size_t      strlist_num_items(const strlist_t *slist);
+size_t      strlist_len(const strlist_t *slist);
 void        strlist_add(strlist_t *slist, const char *s);
 void        strlist_dump(const strlist_t *slist);
-const char *strlist_get_item_at(const strlist_t *slist, size_t index);
+const char *strlist_item(const strlist_t *slist, size_t index);
 
 #endif

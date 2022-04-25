@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
                 printf(" (id = %d)\n", cpu_id);
             }
             printf("disassembled %ld bytes\n",
-                    disassemble(strlist_get_item_at(args, 0)));
+                    disassemble(strlist_item(args, 0)));
             break;
         default:
             fprintf(stderr, "%s: unknown cmdline parser exit code %d.\n",
