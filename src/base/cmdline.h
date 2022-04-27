@@ -69,6 +69,6 @@ void cmdline_show_version(void);
 bool cmdline_add_options(const cmdline_option_t *options);
 void cmdline_list_options(void);
 
-int cmdline_parse(int argc, char *argv[], strlist_t **list);
+int  cmdline_parse(int argc, char *argv[], strlist_t **list);
 
 #endif

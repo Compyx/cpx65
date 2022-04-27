@@ -226,7 +226,6 @@ static cmdline_option_t *cmdline_option_init(const cmdline_option_t *option)
 }
 
 
-
 /** \brief  Initialize command line parser
  *
  * \param[in]   name    program name
@@ -383,49 +382,120 @@ void cmdline_show_help(void)
 }
 
 
-/** \brief  Look up option in \a arg
+/** \brief  Find short option
  *
- * \param[in]   arg command line argument starting with a dash
+ * \param[in]   opt         argv element containing option (and perhaps argument)
+ * \param[out]  argptr      pointer to argument in \a opt, if present
+ * \param[out]  with_arg    \a opt contained argument to option
  *
- * \return  option object when found, `NULL` on failure
+ * \return  pointer to option list element or NULL on error
  */
-static cmdline_option_t *option_find(const char *arg)
+static cmdline_option_t *option_find_short(const char *opt,
+                                           const char **argptr,
+                                           bool *with_arg)
 {
-    size_t i;
-
-    for (i = 0; i < option_list_used; i++) {
+    for (size_t i = 0; i < option_list_used; i++) {
         cmdline_option_t *option = option_list[i];
 
-        if (arg[1] == '-') {
-            /* long opt */
-            if (strcmp(arg + 2, option->long_opt) == 0) {
-                return option;
+        if (option->short_opt == opt[1]) {
+            if (opt[2] != '\0') {
+                /* got argument inside same argv element */
+                *with_arg = true;
+                *argptr = opt + 2;
+            } else {
+                *with_arg = false;
+                *argptr = NULL;
             }
-        } else {
-            base_debug_cmdline("arg[1]= '%c', option->short_opt = '%c'\n",
-                    arg[1], option->short_opt);
-            if (arg[1] == option->short_opt) {
-                return option;
-            }
+            return option;
         }
     }
+    fprintf(stderr, "%s: error: invalid option '-%c'\n", prg_name, opt[1]);
+    return NULL;
+}
+
+
+/** \brief  Find long option
+ *
+ * \param[in]   opt         argv element containing option (and perhaps argument)
+ * \param[out]  argptr      pointer to argument in \a opt, if present
+ * \param[out]  with_arg    \a opt contained argument to option
+ *
+ * \return  pointer to option list element or NULL on error
+ */
+static cmdline_option_t *option_find_long(const char *opt,
+                                          const char **argptr,
+                                          bool *with_arg)
+{
+    size_t len;
+    const char *p;
+
+    *with_arg = false;
+    *argptr = NULL;
+
+    /* find '=', if any */
+    for (p = opt + 2; *p != '\0'; p++) {
+        if (*p == '=') {
+            *with_arg = true;
+            *argptr = p + 1;
+            break;
+
+        }
+    }
+    len = (size_t)(p - opt - 2);
+
+    /* reject anything shorter than two characters (also catches '--=') */
+    if (len < 2) {
+        fprintf(stderr, "%s: error: invalid option %s\n", prg_name, opt);
+        return NULL;
+    }
+
+    /* find option */
+    for (size_t i = 0; i < option_list_used; i++) {
+        cmdline_option_t *option = option_list[i];
+
+        if (option->long_opt != NULL &&
+                strncmp(option->long_opt, opt + 2, len) == 0) {
+            return option;
+        }
+    }
+    fprintf(stderr, "%s: error: invalid option %s\n", prg_name, opt);
     return NULL;
 }
 
 
 /** \brief  Handle \a option
  *
- * \param[in,out]   option  option pointer
- * \param[in]       arg     optional option argument
+ * \param[in]   opt     argv element with possible option
+ * \param[in]   arg     argv element with optional option argument
  *
- * \return  delta in argv, or -1 on error
+ * \return  extra offset in argv, or -1 on error
  */
-static int option_handle(cmdline_option_t * option, const char *arg)
+static int option_handle(const char *opt, const char *arg)
 {
-    long num;
+    cmdline_option_t *option;
+    const char *argptr; /* option's argument, either inside opt, or arg itself */
     char *endptr;
-    int delta = 0;  /* arg consumed (ie non-bool) or -1 on error */
     char **sptr;
+    long num;
+    int delta;      /* extra offset to add to index in argv */
+    bool with_arg;  /* option argument is contained in argv element */
+
+    if (opt[1] == '-') {
+        /* long option */
+        option = option_find_long(opt, &argptr, &with_arg);
+    } else {
+        /* short option */
+        option = option_find_short(opt, &argptr, &with_arg);
+    }
+    if (option == NULL) {
+        /* error has already been reported */
+        return -1;
+    }
+    if (argptr == NULL) {
+        /* no argument found inside option */
+        argptr = arg;
+    }
+
 
 #ifdef HAVE_DEBUG
     if (option->short_opt > 0 && option->long_opt != NULL) {
@@ -438,15 +508,16 @@ static int option_handle(cmdline_option_t * option, const char *arg)
     }
 #endif
 
-    base_debug_cmdline("arg to option: '%s'", arg);
+    base_debug_cmdline("arg to option: '%s'", argptr);
 
     /* check for option argument */
     if (option->type != CMDLINE_TYPE_BOOL &&
-            (arg == NULL || *arg == '\0')) {
+            (argptr == NULL || *argptr == '\0')) {
         fprintf(stderr, "%s: error: missing argument.\n", prg_name);
         return -1;
     }
 
+    delta = 0;
     switch (option->type) {
 
         /* boolean */
@@ -456,13 +527,18 @@ static int option_handle(cmdline_option_t * option, const char *arg)
 
         /* integer */
         case CMDLINE_TYPE_INT:
-           num = strtol(arg, &endptr, 0);
+            num = strtol(argptr, &endptr, 0);
             if (*endptr != '\0') {
-                /* failed, todo: report error */
+                /* failed, report error */
+                fprintf(stderr,
+                        "%s: error: failed to convert argument '%s' to integer.\n",
+                        prg_name, argptr);
                 delta = -1;
             } else {
                 *((int *)(option->target)) = (int)num;
-                delta = 1;
+                if (!with_arg) {
+                    delta = 1;
+                }
             }
             break;
 
@@ -473,14 +549,18 @@ static int option_handle(cmdline_option_t * option, const char *arg)
             if (*sptr != NULL) {
                 base_free(*sptr);
             }
-            *sptr = base_strdup(arg);
-            delta = 1;
+            *sptr = base_strdup(argptr);
+            if (!with_arg) {
+                delta = 1;
+            }
             break;
 
         /* array */
         case CMDLINE_TYPE_ARR:
-            strlist_add(*(strlist_t **)(option->target), arg);
-            delta = 1;
+            strlist_add(*(strlist_t **)(option->target), argptr);
+            if (!with_arg) {
+                delta = 1;
+            }
             break;
 
         /* default: error out */
@@ -488,8 +568,6 @@ static int option_handle(cmdline_option_t * option, const char *arg)
             base_debug_cmdline("Unsupported CMDLINE_TYPE %d", option->type);
             delta = -1;
             break;
-
-
     }
 
     return delta;
@@ -527,14 +605,13 @@ int cmdline_parse(int argc, char *argv[], strlist_t **list)
     /* initialize list of non-option args */
     *list = strlist_init();
 
-
+    /* process argv */
     for (i = 1; i < argc; i++) {
-        int delta = 0;
+        int delta = 0;  /* extra offset to add to the index */
+
         base_debug_cmdline("parsing argv[%d]: '%s'", i, argv[i]);
         if (argv[i][0] == '-') {
             /* possible option */
-            cmdline_option_t *option;
-
             base_debug_cmdline(".. found possible option '%s'", argv[i]);
 
             /*
@@ -551,17 +628,13 @@ int cmdline_parse(int argc, char *argv[], strlist_t **list)
                     return CMDLINE_EXIT_VERSION;
                 }
             }
-
-            option = option_find(argv[i]);
-            if (option == NULL) {
-                fprintf(stderr, "%s: unknown option '%s'\n", prg_name, argv[i]);
-                return CMDLINE_EXIT_ERROR;
-            }
-            base_debug_cmdline(".. recognized option '%s'", argv[i]);
-            delta = option_handle(option, argv[i + 1]);
+            /* handle option */
+            delta = option_handle(argv[i], argv[i + 1]);
             if (delta < 0) {
+                /* error has been already reported */
                 return CMDLINE_EXIT_ERROR;
             }
+
         } else {
             /* non-option argument */
             base_debug_cmdline(".. adding non-option argument '%s'", argv[i]);

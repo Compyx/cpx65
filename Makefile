@@ -11,7 +11,7 @@ CFLAGS = -Wall -Wextra -std=c99 -O2 -g \
 	 -Wstrict-prototypes -Wmissing-prototypes \
 	 -Wswitch-default -Wswitch-enum -Wuninitialized -Wconversion \
 	 -Wredundant-decls -Wnested-externs -Wunreachable-code \
-	 -DHAVE_DEBUG
+	 -DHAVE_DEBUG -DHAVE_DEBUG_BASE_CMDLINE
 
 
 
