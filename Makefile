@@ -37,6 +37,7 @@ BASE_IO_OBJS = \
 # objects in src/base and its subdirs
 BASE_OBJS = \
 	cmdline.o \
+	dict.o \
 	error.o \
 	hash.o \
 	mem.o \
@@ -51,6 +52,7 @@ BASE_OBJS = \
 TEST_OBJS = \
 	unit.o \
 	test_cpu.o \
+	test_dict.o \
 	test_mem.o \
 	test_objpool.o \
 	test_io.o \

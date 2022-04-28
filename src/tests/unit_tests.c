@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "test_io.h"
 #include "test_symtab.h"
 #include "test_strpool.h"
+#include "test_dict.h"
 
 
 /** \brief  Option result object for -m/--list-modules
@@ -92,7 +93,7 @@ static void register_modules(void)
     unit_module_add(&io_module);
     unit_module_add(&symtab_module);
     unit_module_add(&strpool_module);
-
+    unit_module_add(&dict_module);
 }
 
 
