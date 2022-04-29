@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #define HASHMAP_SIZE_BITS  10u
 
-
+#if 0
 static dict_item_t *dict_item_new(const char *key)
 {
     dict_item_t *item;
@@ -57,7 +57,7 @@ static dict_item_t *dict_item_new(const char *key)
 
     return item;
 }
-
+#endif
 
 static void dict_item_free(dict_item_t *item)
 {

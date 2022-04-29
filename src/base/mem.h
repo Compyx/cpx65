@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include <stdbool.h>
 
+
+#define base_array_len(A)   (sizeof(A) / sizeof(A[0]))
+
 void *  base_malloc(size_t size);
 void *  base_calloc(size_t nelem, size_t elsize);
 void *  base_realloc(void *ptr, size_t size);

@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef TESTS_BASE_CPU_H
 #define TESTS_BASE_CPU_H
 
-#include "unit.h"
+#include "testcase.h"
 
-extern unit_module_t cpu_module;
+testgroup_t *get_base_cpu_tests(void);
 
 #endif

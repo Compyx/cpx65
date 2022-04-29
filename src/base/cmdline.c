@@ -99,7 +99,7 @@ static size_t option_list_used = 0;
  * Used to free the arguments collected by the parser when calling
  * cmdline_exit(). To keep the argument list, use strlist_dup() (TODO).
  */
-static strlist_t **args_list;
+static strlist_t **args_list = NULL;
 
 
 /** \brief  Initialize the command line options list
@@ -267,8 +267,10 @@ void cmdline_exit(void)
     base_free(prg_version);
 
     cmdline_option_list_free();
-    strlist_free(*args_list);
-    *args_list = NULL;
+    if (args_list != NULL && *args_list != NULL) {
+        strlist_free(*args_list);
+        *args_list = NULL;
+    }
 }
 
 

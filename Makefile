@@ -11,14 +11,15 @@ CFLAGS = -Wall -Wextra -std=c99 -O2 -g \
 	 -Wstrict-prototypes -Wmissing-prototypes \
 	 -Wswitch-default -Wswitch-enum -Wuninitialized -Wconversion \
 	 -Wredundant-decls -Wnested-externs -Wunreachable-code \
-	 -DHAVE_DEBUG -DHAVE_DEBUG_BASE_CMDLINE
+	 -DHAVE_DEBUG
+#	 -DHAVE_DEBUG_BASE_CMDLINE
 
 
 
 BIN_ASM = cpx65as
 BIN_DISASM = cpx65da
 BIN_LD = cpx65ld
-BIN_TESTS = unit_tests
+BIN_TESTS = testrunner
 
 all: $(BIN_ASM) $(BIN_DISASM) $(BIN_TESTS)
 
@@ -50,15 +51,19 @@ BASE_OBJS = \
 
 # objects in src/tests
 TEST_OBJS = \
-	unit.o \
-	test_cpu.o \
-	test_dict.o \
-	test_mem.o \
-	test_objpool.o \
-	test_io.o \
-	test_symtab.o \
-	test_strpool.o \
-	test_unittest.o
+	testcase.o \
+	test_testcase.o \
+	test_base_cpu.o
+#	unit.o \
+#	testcase.o \
+#	test_cpu.o \
+#	test_dict.o \
+#	test_mem.o \
+#	test_objpool.o \
+#	test_io.o \
+#	test_symtab.o \
+#	test_strpool.o \
+#	test_unittest.o
 
 
 $(BIN_ASM): src/asm/main.o $(BASE_OBJS)
@@ -67,7 +72,7 @@ $(BIN_ASM): src/asm/main.o $(BASE_OBJS)
 $(BIN_DISASM): src/disasm/main.o $(BASE_OBJS)
 	$(LD) -o $@ $^
 
-$(BIN_TESTS): src/tests/unit_tests.o $(BASE_OBJS) $(TEST_OBJS)
+$(BIN_TESTS): src/tests/testrunner.o $(BASE_OBJS) $(TEST_OBJS)
 	$(LD) -o $@ $^
 
 
