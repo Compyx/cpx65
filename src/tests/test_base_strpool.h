@@ -1,5 +1,5 @@
-/** \file   test_objpool.h
- * \brief   Test object pool handling - header
+/** \file   test_base_objpool.h
+ * \brief   Unit tests for base/strpool.c - header
  */
 
 /*
@@ -21,11 +21,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef TESTS_TEST_STRPOOL_H
-#define TESTS_TEST_STRPOOL_H
+#ifndef TESTS_TEST_BASE_STRPOOL_H
+#define TESTS_TEST_BASE_STRPOOL_H
 
 #include "unit.h"
-#include "../base/strpool.h"
 
 extern unit_module_t strpool_module;
 

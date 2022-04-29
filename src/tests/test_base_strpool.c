@@ -1,5 +1,5 @@
-/** \file   test_strpool.c
- * \brief   Unit tests for strpool.c
+/** \file   test_base_strpool.c
+ * \brief   Unit tests for base/strpool.c
  */
 
 /*

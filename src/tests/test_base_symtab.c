@@ -1,4 +1,4 @@
-/** \file   test_symtab.c
+/** \file   test_base_symtab.c
  * \brief   Unit tests for base/symtab.c
  */
 

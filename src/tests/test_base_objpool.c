@@ -1,5 +1,5 @@
-/** \file   test_objpool.c
- * \brief   Unit tests for objpool.c
+/** \file   test_base_objpool.c
+ * \brief   Unit tests for base/objpool.c
  */
 
 /*

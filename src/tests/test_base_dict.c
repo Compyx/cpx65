@@ -1,4 +1,4 @@
-/** \file   test_dict.c
+/** \file   test_base_dict.c
  * \brief   Unit tests for base/dict.c
  */
 
@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "unit.h"
 #include "../base/dict.h"
 
-#include "test_dict.h"
+#include "test_base_dict.h"
 
 
 /*

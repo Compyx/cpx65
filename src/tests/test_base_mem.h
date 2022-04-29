@@ -1,4 +1,4 @@
-/** \file   test_mem.h
+/** \file   test_base_mem.h
  * \brief   Unit tests for base/mem.c - header
  */
 
@@ -21,8 +21,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef TESTS_TEST_MEM_H
-#define TESTS_TEST_MEM_H
+#ifndef TESTS_TEST_BASE_MEM_H
+#define TESTS_TEST_BASE_MEM_H
 
 #include "unit.h"
 

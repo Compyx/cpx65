@@ -1,4 +1,4 @@
-/** \file   test_io.c
+/** \file   test_base_io.c
  * \brief   Unit tests for base/io
  */
 

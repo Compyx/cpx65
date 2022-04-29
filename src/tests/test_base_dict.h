@@ -1,5 +1,5 @@
-/** \file   test_mem.i
- * \brief   Unit tests for base/io - header
+/** \file   test_base_dict.h
+ * \brief   Unit tests for base/dict.c - header
  */
 
 /*
@@ -21,11 +21,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef TESTS_TEST_IO_H
-#define TESTS_TEST_IO_H
+#ifndef TESTS_BASE_DICT_H
+#define TESTS_BASE_DICT_H
 
 #include "unit.h"
 
-extern unit_module_t io_module;
+extern unit_module_t dict_module;
 
 #endif

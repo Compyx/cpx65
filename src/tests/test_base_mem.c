@@ -1,4 +1,4 @@
-/** \file   test_mem.c
+/** \file   test_base_mem.c
  * \brief   Unit tests for base/mem.c
  */
 
