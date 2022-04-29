@@ -81,9 +81,17 @@ typedef enum mnemonic_id_e {
 #define MNEMONIC_COUNT   (MNE_WAI + 1)
 
 
-/** \brief  Maximum length of a mnemonic
+/** \brief  Minimum length of a mnemonic
+ *
+ * Most mnemonics are this length.
  */
-#define MNEMONIC_MAX_LEN    3
+#define MNEMONIC_MIN_LEN    3
+
+/** \brief  Maximum length of a mnemonic
+ *
+ * Mnemonics such as 'BBR0' and 'SBM7' are longer than 3 characters.
+ */
+#define MNEMONIC_MAX_LEN    4
 
 
 const char *mnemonic_get_text(mnemonic_id_t id);

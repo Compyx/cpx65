@@ -72,7 +72,9 @@ static const mne_id_test_t mne_id_tests[] = {
     { "sbc",    MNE_SBC },
     { "tya",    MNE_TYA },
     { "lsr",    MNE_LSR },
-    { "lsr a",  MNE_ILL },
+    { "lsr a",  MNE_LSR },
+    { "lsra",   MNE_ILL },
+    { "ad",     MNE_ILL },
     { "",       MNE_ILL },
     { NULL,     MNE_ILL }
 };

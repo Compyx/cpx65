@@ -137,7 +137,7 @@ static int mne_compar(const void *p1, const void *p2)
  *
  * \param[in]   text    mnemonic text
  *
- * \return  mnemonic ID or -1 on error
+ * \return  mnemonic ID or -1 (MNE_ILL) on error
  */
 mnemonic_id_t mnemonic_get_id(const char *text)
 {
@@ -145,12 +145,15 @@ mnemonic_id_t mnemonic_get_id(const char *text)
     int i;
     void *result;
 
-    printf("sizeof(mnemonic_id_t) = %zu\n", sizeof(mnemonic_id_t));
-    printf("sizeof(ptrdiff_t) = %zu\n", sizeof(ptrdiff_t));
-
+    if (text == NULL || *text == '\0') {
+        return MNE_ILL;
+    }
     /* convert to lower case */
-    for (i = 0; *text != '\0' && i < MNEMONIC_MAX_LEN; i++) {
+    for (i = 0; i < MNEMONIC_MAX_LEN  && text[i] != '\0' && isalnum((int)(text[i])); i++) {
         mne[i] = (char)tolower((int)(text[i]));
+    }
+    if (i < MNEMONIC_MIN_LEN) {
+        return MNE_ILL;
     }
     mne[i] = '\0';
 
@@ -162,7 +165,7 @@ mnemonic_id_t mnemonic_get_id(const char *text)
             sizeof mnemonic_text[0],
             mne_compar);
     if (result == NULL) {
-        return -1;
+        return MNE_ILL;
     }
     return (const char **)result - mnemonic_text;
 }
