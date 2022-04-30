@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef TESTS_TEST_BASE_OBJPOOL_H
 #define TESTS_TEST_BASE_OBJPOOL_H
 
-#include "../base/objpool.h"
+#include "testcase.h"
 
-extern unit_module_t objpool_module;
+testgroup_t *get_base_objpool_tests(void);
 
 #endif

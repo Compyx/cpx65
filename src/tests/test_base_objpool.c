@@ -27,13 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdbool.h>
 #include <string.h>
 
+#include "testcase.h"
 #include "../base/debug.h"
-#include "unit.h"
 #include "../base/mem.h"
 #include "../base/strlist.h"
 #include "../base/objpool.h"
 
-#include "test_objpool.h"
+#include "test_base_objpool.h"
 
 
 /** \brief  Minimal amount of memory to allocate
@@ -59,13 +59,14 @@ typedef struct string_obj_test_s {
 /*
  * Forward declarations
  */
-
+#if 0
 static bool setup(void);
 static bool teardown(void);
 
 static bool test_init(int *total, int *passed);
 static bool test_add_item(int *total, int *passed);
 static bool test_item_reuse(int *total, int *passed);
+#endif
 
 /*
  * Object callbacks
@@ -74,23 +75,6 @@ static void *   pool_obj_alloc(void *param);
 static void *   pool_obj_reuse(void *obj, void *param);
 static void     pool_obj_free(void *obj);
 static size_t   pool_obj_size(void *obj);
-
-
-static unit_test_t tests[] = {
-    { "init", "Test initializing and freeing an objpool", test_init, false },
-    { "add-item", "Test adding item to an empty objpool", test_add_item, false },
-    { "item-reuse", "Test reusing items", test_item_reuse, false },
-    { NULL, NULL, NULL, false }
-};
-
-
-unit_module_t objpool_module = {
-    "objpool",
-    "Test object pool handling",
-    setup, teardown,
-    0, 0,
-    tests
-};
 
 
 static objpool_t pool_test = {
@@ -198,41 +182,44 @@ static bool teardown(void)
  * Unit tests
  */
 
-static bool test_init(int *total, int *passed)
+static bool test_init(testcase_t *self)
 {
-    *total += 1;
-    *passed += 1;
+    testcase_pass(self);
     return true;
 }
 
 
-static bool test_add_item(int *total, int *passed)
+static bool test_add_item(testcase_t *self)
 {
-    bool result = true;
+#define TEST_STR    "Compyx!"
     void *obj;
+    const char *content;
 
-    *total += 1;
+    printf("... requesing string(\"%s\") ..\n", TEST_STR);
+    obj = objpool_request(&pool_test, 0 , TEST_STR);
+    content = ((string_obj_test_t *)obj)->text;
 
-    obj = objpool_request(&pool_test, 0 , "Compyx!");
+    printf("... object content: '%s'\n", content);
+    testcase_assert_true(self,
+                         content != NULL && strcmp(TEST_STR, content) == 0);
+//    printf("... dumping objpool stats:\n\n");
+//    objpool_dump_stats(&pool_test);
 
-    printf("Object content: '%s'\n", ((string_obj_test_t *)obj)->text);
-
-    *passed += 1;
-
-    printf("Dumping objpool stats:\n\n");
-    objpool_dump_stats(&pool_test);
-    return result;
+#undef TEST_STR
+    return true;
 }
 
 
-static bool test_item_reuse(int *total, int *passed)
+/* FIXME: Incomplete test
+ */
+static bool test_item_reuse(testcase_t *self)
 {
     void *ptrs[1024];
     int i;
     int k;
     char *strings[]= {
         "compyx", "fucking", "rules", "and", "don't you forget it",
-        "you bastardo!", "pummekl", "piemel", NULL
+        "you bastardo!", "pummkle", "piemel", NULL
     };
 
 
@@ -256,10 +243,41 @@ static bool test_item_reuse(int *total, int *passed)
         printf(".. [%04d:%04zu:%04zu \"%s\"\n",
                 k, s->size, s->len, s->text);
     }
-
     objpool_dump_stats(&pool_test);
 
-    *total = i;
-    *passed = i;
+    /* TODO: free one or more objects and add new ones */
+    testcase_pass(self);
     return true;
+}
+
+
+/** \brief  Create test group 'base/objpool'
+ *
+ * \return  test group
+ */
+testgroup_t *get_base_objpool_tests(void)
+{
+    testgroup_t *group;
+    testcase_t *test;
+
+    group = testgroup_new("base/objpool",
+                          "Test the object pool module",
+                          NULL, NULL);
+
+    test = testcase_new("init",
+                        "Test initializing an object pool",
+                        1, test_init, setup, teardown);
+    testgroup_add_case(group, test);
+
+    test = testcase_new("add",
+                        "Test adding an object to an object pool",
+                        1, test_add_item, setup, teardown);
+    testgroup_add_case(group, test);
+
+    test = testcase_new("reuse",
+                        "Test reusing object in an object pool",
+                        1, test_item_reuse, setup, teardown);
+    testgroup_add_case(group, test);
+
+    return group;
 }

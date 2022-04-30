@@ -56,8 +56,8 @@ TEST_OBJS = \
 	test_base_cpu.o \
 	test_base_dict.o \
 	test_base_io.o \
-	test_base_mem.o
-#	test_objpool.o \
+	test_base_mem.o \
+	test_base_objpool.o
 #	test_symtab.o \
 #	test_strpool.o \
 
