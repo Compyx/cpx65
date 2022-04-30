@@ -55,14 +55,11 @@ TEST_OBJS = \
 	test_testcase.o \
 	test_base_cpu.o \
 	test_base_dict.o \
-	test_base_io.o
-#	unit.o \
-#	testcase.o \
-#	test_mem.o \
+	test_base_io.o \
+	test_base_mem.o
 #	test_objpool.o \
 #	test_symtab.o \
 #	test_strpool.o \
-#	test_unittest.o
 
 
 $(BIN_ASM): src/asm/main.o $(BASE_OBJS)

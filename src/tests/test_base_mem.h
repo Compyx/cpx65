@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef TESTS_TEST_BASE_MEM_H
 #define TESTS_TEST_BASE_MEM_H
 
-#include "unit.h"
+#include "testcase.h"
 
-extern unit_module_t mem_module;
+testgroup_t *get_base_mem_tests(void);
 
 #endif

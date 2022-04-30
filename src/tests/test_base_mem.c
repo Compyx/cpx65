@@ -28,38 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdbool.h>
 #include <string.h>
 
+#include "testcase.h"
 #include "../base/debug.h"
-#include "unit.h"
 #include "../base/mem.h"
 
-#include "test_mem.h"
-
-
-/*
- * Forward declarations
- */
-static bool test_ispow2(int *total, int *passed);
-static bool test_nextpow2(int *total, int *passed);
-
-
-/** \brief  List of subtests
- */
-static unit_test_t tests[] = {
-    { "ispow2", "Test base_ispow2()", test_ispow2, false },
-    { "nextpow2", "Test base_nextpow2()", test_nextpow2, false },
-    { NULL, NULL, NULL, false }
-};
-
-
-/** \brief  Public unit test module
- */
-unit_module_t mem_module = {
-    "mem",
-    "Test base/mem",
-    NULL, NULL,
-    0, 0,
-    tests
-};
+#include "test_base_mem.h"
 
 
 /** \brief  Object containing data to test #base_ispow2
@@ -69,6 +42,19 @@ typedef struct ispow2_test_s {
     bool expected;  /**< expected result */
 } ispow2_test_t;
 
+/** \brief  Test cases for #base_ispow2()
+ */
+static const ispow2_test_t ispow2_tests[] = {
+    {     0, false },
+    {     1, true },
+    {     2, true },
+    {     3, false },
+    {     4, true },
+    {   256, true },
+    { 36233, false },
+    { 65536, true }
+};
+
 
 /** \brief  Object containing data to test #base_nextpow2
  */
@@ -77,54 +63,36 @@ typedef struct nextpow2_test_s {
     size_t expected;    /**< expected output */
 } nextpow2_test_t;
 
-
-/** \brief  Test cases for #base_ispow2()
- */
-static const ispow2_test_t ispow2_tests[] = {
-    { 0, false },
-    { 1, true },
-    { 2, true },
-    { 3, false },
-    { 4, true },
-    { 256, true },
-    { 36233, false },
-    { 65536, true }
-};
-
-
 /** \brief  Test cases for #base_nextpow2()
  */
 static const nextpow2_test_t nextpow2_tests[] = {
-    { 0, 0 },
-    { 1, 2 },
-    { 7, 8 },
-    { 16, 32 },
-    { 31, 32 },
-    { 42, 64 },
-    { SIZE_MAX, 0 }
+    {        0,  0 },
+    {        1,  2 },
+    {        7,  8 },
+    {       16, 32 },
+    {       31, 32 },
+    {       42, 64 },
+    { SIZE_MAX,  0 }
 };
 
 
 /** \brief  Test the #base_ispow2() function
  *
- * \param[out]  total   total number of tests
- * \param[out]  passed  number of passed tests
+ * \param[in]   self    test case
  *
  * \return  bool
  */
-static bool test_ispow2(int *total, int *passed)
+static bool test_ispow2(testcase_t *self)
 {
     for (size_t i = 0; i < sizeof ispow2_tests / sizeof ispow2_tests[0]; i++) {
-        bool func_res = base_ispow2(ispow2_tests[i].value);
-        bool final_res = func_res == ispow2_tests[i].expected;
+        bool result = base_ispow2(ispow2_tests[i].value);
+        bool expected = ispow2_tests[i].expected;
 
-        printf(" .. ispow2(%zx) = %s (expected %s) -> %s\n",
-                ispow2_tests[i].value,
-                func_res ? "true" : "false",
-                ispow2_tests[i].expected ? "true" : "false",
-                final_res ? "OK" : "Failed");
-        (*total)++;
-        (*passed) += final_res ? 1 : 0;
+        printf("... ispow2(%zx) = %s (expected %s)\n",
+               ispow2_tests[i].value,
+               result ? "true" : "false",
+               expected ? "true" : "false");
+        testcase_assert_true(self, result == expected);
     }
     return true;
 }
@@ -132,24 +100,50 @@ static bool test_ispow2(int *total, int *passed)
 
 /** \brief  Test #base_nextpow2()
  *
- * \param[out]  total   total subtests
- * \param[out]  passed  number of passed subtests
+ * \param[in]   self    test case
  *
  * \return  bool
  */
-static bool test_nextpow2(int *total, int *passed)
+static bool test_nextpow2(testcase_t *self)
 {
     for (size_t i = 0; i < sizeof nextpow2_tests / sizeof nextpow2_tests[0]; i++) {
-        size_t func_res = base_nextpow2(nextpow2_tests[i].value);
-        bool final_res = func_res == nextpow2_tests[i].expected;
+        size_t result = base_nextpow2(nextpow2_tests[i].value);
+        size_t expected =  nextpow2_tests[i].expected;
 
-        printf(" .. nextpow2(%zx) = %lx (expected %zx) -> %s\n",
-                nextpow2_tests[i].value,
-                func_res,
-                nextpow2_tests[i].expected,
-                final_res ? "OK" : "Failed");
-        (*total)++;
-        (*passed) += final_res ? 1 : 0;
+        printf("... nextpow2(%zx) = %lx (expected %zx)\n",
+               nextpow2_tests[i].value,
+               result,
+               expected);
+        testcase_assert_true(self, result == expected);
     }
     return true;
+}
+
+
+/** \brief  Create test group 'base/mem'
+ *
+ * \return  test group
+ */
+testgroup_t *get_base_mem_tests(void)
+{
+    testgroup_t *group;
+    testcase_t *test;
+
+    group = testgroup_new("base/mem",
+                          "Test the base/mem module",
+                          NULL, NULL);
+
+    test = testcase_new("ispow2",
+                        "Test the base_ispow2() function",
+                        (int)(base_array_len(ispow2_tests)),
+                        test_ispow2, NULL, NULL);
+    testgroup_add_case(group, test);
+
+    test = testcase_new("nextpow2",
+                        "Test the base_nextpow2() function",
+                        (int)(base_array_len(nextpow2_tests)),
+                        test_nextpow2, NULL, NULL);
+    testgroup_add_case(group, test);
+
+    return group;
 }

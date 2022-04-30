@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "test_base_cpu.h"
 #include "test_base_dict.h"
 #include "test_base_io.h"
+#include "test_base_mem.h"
 //#include "test_keywords.h"
 
 
@@ -155,6 +156,7 @@ static void register_groups(void)
     register_group(get_base_cpu_tests());
     register_group(get_base_dict_tests());
     register_group(get_base_io_tests());
+    register_group(get_base_mem_tests());
 }
 
 
