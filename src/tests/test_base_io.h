@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef TESTS_TEST_BASE_IO_H
 #define TESTS_TEST_BASE_IO_H
 
-#include "unit.h"
+#include "testcase.h"
 
-extern unit_module_t io_module;
+testgroup_t *get_base_io_tests(void);
 
 #endif

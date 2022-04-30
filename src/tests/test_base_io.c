@@ -27,136 +27,141 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdbool.h>
 #include <string.h>
 
-#include "unit.h"
-#include "../base/base.h"
+#include "testcase.h"
+#include "../base/error.h"
+#include "../base/io/io.h"
+#include "../base/mem.h"
 
-#include "test_io.h"
+#include "test_base_io.h"
 
+
+/** \brief  Test file for text file handling
+ */
 #define TEXT_TEST_FILE  "src/base/io/txtfile.c"
-
-
-
-/*
- * Forward declarations
- */
-static bool test_binfile(int *total, int *passed);
-static bool test_txtfile(int *total, int *passed);
-
-
-/** \brief  List of subtests
- */
-static unit_test_t tests[] = {
-    { "binfile", "Test raw binary file handling", test_binfile, false },
-    { "txtfile", "Test text file handling", test_txtfile, false },
-    { NULL, NULL, NULL, false }
-};
-
-
-/** \brief  Public unit test module
- */
-unit_module_t io_module = {
-    "io",
-    "Test base/io",
-    NULL, NULL,
-    0, 0,
-    tests
-};
 
 
 /** \brief  Test the binary file I/O
  *
- * \param[out]  total   total number of tests
- * \param[out]  passed  number of passed tests
+ * \param[in]   self    test case
  *
  * \return  bool
  */
-static bool test_binfile(int *total, int *passed)
+static bool test_binfile(testcase_t *self)
 {
-    uint8_t *data;
+    uint8_t *data = NULL;
     long result;
 
-    printf("..... testing base_binfile_read() with non-existant file ... ");
-    (*total) += 1;
+    /* test #1: proper handling of non-existent file */
+    printf("... testing base_binfile_read() with non-existent file 'foo.bar.huppel' ..\n");
     result = base_binfile_read("foo.bar.huppel", &data);
-    if (result < 0) {
-        printf("pass.\n");
-        (*passed)++;
-    } else {
+    testcase_assert_true(self, result < 0);
+    /* make sure to clean up after a failed test */
+    if (result >= 0) {
         printf("failed.\n");
+        if (data != NULL) {
+            base_free(data);
+        }
     }
 
-
-    printf("...... testing base_binfile_read(\"unit_tests\" ... ");
-    (*total)++;
-    result = base_binfile_read("unit_tests", &data);
-     if (result > 0) {
-        printf("pass: %ld bytes.\n", result);
-        (*passed)++;
+    /* test #2: reading a file */
+    printf("... testing base_binfile_read(\"testrunner\") .. ");
+    result = base_binfile_read("testrunner", &data);
+    printf("%ld bytes.\n", result);
+    testcase_assert_true(self, result > 0);
+    if (result >= 0) {
         base_free(data);
-    } else {
-        printf("failed.\n");
     }
+
     return true;
 }
 
 
 /** \brief  Test the text file I/O
  *
- * \param[out]  total   total number of tests
- * \param[out]  passed  number of passed tests
+ * \param[in]   self    test case
  *
  * \return  bool
  */
-static bool test_txtfile(int *total, int *passed)
+static bool test_txtfile(testcase_t *self)
 {
     txtfile_t handle;
+    bool result;
+    int printlines = 4;
 
-    /* Test failure to open file */
-    printf("..... testing base_txtfile_read() with non-existant file ... ");
-    (*total) += 1;
-    if (txtfile_open(&handle, "foo-bar-huppel-appel-meloen")) {
-        printf("OK (shouldn't happen!)\n");
-        return false;
-    }
-    printf("Failed -> OK\n");
-    (*passed)++;
-
-    /* Test opening existing file */
-    printf("..... testing base_txtfile_read(\"%s\") ... ", TEXT_TEST_FILE);
-    (*total) += 1;
-    if (txtfile_open(&handle, TEXT_TEST_FILE)) {
-        printf("OK.\n");
-        (*passed)++;
-    } else {
-        printf("Failed\n");
-        return false;
+    /* test #1: test failure to open file */
+    printf("... testing base_txtfile_read() with non-existant file ..\n");
+    base_errno = 0;
+    result = txtfile_open(&handle, "foo-bar-huppel-appel-meloen");
+    testcase_assert_false(self, result);
+    /* test #2: test value of base_errno */
+    printf("... checking base_errno for BASE_ERR_IO (%d): got %d (%s)\n",
+           BASE_ERR_IO, base_errno, base_strerror(base_errno));
+    testcase_assert_equal(self, base_errno, BASE_ERR_IO);
+    if (result) {
+        /* clean up */
+        txtfile_close(&handle);
     }
 
+    /* test #3: test opening existing file */
+    printf("... testing base_txtfile_read(\"%s\") ..\n", TEXT_TEST_FILE);
+    base_errno = 0;
+    result = txtfile_open(&handle, TEXT_TEST_FILE);
+    testcase_assert_true(self, result);
 
-    /* test reading lines */
-    (*total)++;
-
-    do {
-        const char *line = txtfile_readline(&handle);
-        if (line == NULL) {
-            bool eof = txtfile_get_eof(&handle);
-            printf("Got NULL, checking for eof: %s\n",
-                    eof ? "YES" : "NO");
-            if (eof) {
-                (*passed)++;
+    /* test #4: reading line (only works if test #3 passed) */
+    if (result) {
+        printf("... reading all text until EOF; printing the first %d lines..\n",
+               printlines);
+        do {
+            const char *line = txtfile_readline(&handle);
+            if (line == NULL) {
+                bool eof = txtfile_get_eof(&handle);
+                printf("... got NULL, checking for eof: %s\n", eof ? "YES" : "NO");
+                testcase_assert_true(self, eof);
+                break;
             }
-            break;
-        }
-        printf("%04ld: %04zu: '%s'\n",
-                txtfile_get_linenum(&handle),
-                txtfile_get_linelen(&handle),
-                line);
-    } while (true);
-
-
-    /* clean up */
-    txtfile_close(&handle);
+            if (printlines > 0) {
+                printf("..... %04ld: %04zu: '%s'\n",
+                       txtfile_get_linenum(&handle),
+                       txtfile_get_linelen(&handle),
+                       line);
+                printlines--;
+            }
+        } while (true);
+        /* clean up */
+        txtfile_close(&handle);
+    } else {
+        /* mark test failed if unable to run */
+        testcase_fail(self);
+    }
 
     return true;
 
+}
+
+
+/** \brief  Create test group 'base/io'
+ *
+ * \return  test group
+ */
+testgroup_t *get_base_io_tests(void)
+{
+    testgroup_t *group;
+    testcase_t *test;
+
+    group = testgroup_new("base/io",
+                          "Test the base/io module",
+                          NULL, NULL);
+
+    test = testcase_new("binfile",
+                        "Test binary file handling",
+                        2, test_binfile, NULL, NULL);
+    testgroup_add_case(group, test);
+
+    test = testcase_new("txtfile",
+                        "Test text file handling",
+                        4, test_txtfile, NULL, NULL);
+    testgroup_add_case(group, test);
+
+    return group;
 }

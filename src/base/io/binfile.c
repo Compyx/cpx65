@@ -82,10 +82,14 @@ long base_binfile_read(const char *path, uint8_t **dest)
 
     /* keep reading data until exhausted */
     do {
+#if 0
         printf("pos = %zu.\n", pos);
+#endif
         /* do we need to resize the buffer? */
         if (pos == bufsize) {
+#if 0
             printf("resizing array to %zu bytes.\n", bufsize *= 2);
+#endif
             data = base_realloc(data, bufsize * 2);
             bufsize *= 2;
         }

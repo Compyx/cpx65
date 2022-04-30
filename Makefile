@@ -54,14 +54,12 @@ TEST_OBJS = \
 	testcase.o \
 	test_testcase.o \
 	test_base_cpu.o \
-	test_base_dict.o
+	test_base_dict.o \
+	test_base_io.o
 #	unit.o \
 #	testcase.o \
-#	test_cpu.o \
-#	test_dict.o \
 #	test_mem.o \
 #	test_objpool.o \
-#	test_io.o \
 #	test_symtab.o \
 #	test_strpool.o \
 #	test_unittest.o
@@ -88,7 +86,7 @@ $(BIN_TESTS): src/tests/testrunner.o $(BASE_OBJS) $(TEST_OBJS)
 clean:
 	rm -f *.o
 	rm -f $(BASE_OBJS) $(TEST_OBJS)
-	rm -f src/asm/main.o src/disasm/main.o src/tests/unit_tests.o
+	rm -f src/asm/main.o src/disasm/main.o src/tests/testrunner.o
 	rm -f $(BIN_ASM) $(BIN_DISASM) $(BIN_LD) $(BIN_TESTS)
 
 

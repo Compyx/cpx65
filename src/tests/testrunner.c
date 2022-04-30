@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "test_testcase.h"
 #include "test_base_cpu.h"
 #include "test_base_dict.h"
-//#include "test_io.h"
+#include "test_base_io.h"
 //#include "test_keywords.h"
 
 
@@ -150,11 +150,11 @@ static void list_groups(bool cases)
 static void register_groups(void)
 {
     register_group(get_testcase_tests());
-//    register_group(get_io_tests());
  //   register_group(get_keywords_tests());
  //
     register_group(get_base_cpu_tests());
     register_group(get_base_dict_tests());
+    register_group(get_base_io_tests());
 }
 
 
