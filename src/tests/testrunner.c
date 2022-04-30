@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "test_testcase.h"
 #include "test_base_cpu.h"
+#include "test_base_dict.h"
 //#include "test_io.h"
 //#include "test_keywords.h"
 
@@ -153,6 +154,7 @@ static void register_groups(void)
  //   register_group(get_keywords_tests());
  //
     register_group(get_base_cpu_tests());
+    register_group(get_base_dict_tests());
 }
 
 
@@ -180,6 +182,15 @@ static testgroup_t *find_group(const char *name)
 
     for (int g = 0; g < group_count; g++) {
         testgroup_t *group = group_list[g];
+
+        if (group == NULL) {
+            fprintf(stderr, "ERROR: group is NULL!\n");
+            return NULL;
+        }
+        if (group->name == NULL) {
+            fprintf(stderr, "ERROR: group->name is NULL!\n");
+            return NULL;
+        }
 
         if (strcmp(group->name, name) == 0) {
             return group;

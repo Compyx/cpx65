@@ -6,7 +6,7 @@ VPATH = src:src/base:src/base/cpu:src/base/io:src/tests
 
 CC = gcc
 LD = gcc
-CFLAGS = -Wall -Wextra -std=c99 -O2 -g \
+CFLAGS = -Wall -Wextra -std=c99 -O3 -g \
 	 -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align \
 	 -Wstrict-prototypes -Wmissing-prototypes \
 	 -Wswitch-default -Wswitch-enum -Wuninitialized -Wconversion \
@@ -53,7 +53,8 @@ BASE_OBJS = \
 TEST_OBJS = \
 	testcase.o \
 	test_testcase.o \
-	test_base_cpu.o
+	test_base_cpu.o \
+	test_base_dict.o
 #	unit.o \
 #	testcase.o \
 #	test_cpu.o \

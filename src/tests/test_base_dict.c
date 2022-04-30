@@ -24,55 +24,72 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
 
-#include "../base/debug.h"
-#include "unit.h"
+#include "testcase.h"
 #include "../base/dict.h"
 
 #include "test_base_dict.h"
 
 
-/*
- * Forward declarations
+/** \brief  Test dict_new()/dict_free()
+ *
+ * \param[in]   self    test case
+ *
+ * \return  false on fatal error
  */
-static bool test_new(int *total, int *passed);
-
-
-/** \brief  List of subtests
- */
-static unit_test_t tests[] = {
-    { "new", "Test dict_new()/dict_free()", test_new, false },
-    { NULL, NULL, NULL, false }
-};
-
-
-/** \brief  Public unit test module
- */
-unit_module_t dict_module = {
-    "dict",
-    "Test base/dict",
-    NULL, NULL,
-    0, 0,
-    tests
-};
-
-
-static bool test_new(int *total, int *passed)
+static bool test_new_free(testcase_t *self)
 {
     dict_t *dict;
+    bool result;
 
-    printf("..... testing dict_new()\n");
-    (*total) += 1;
+    printf("... creating new dict with dict_new()\n");
     dict = dict_new();
-    (*passed)++;
+    printf("... dict hashmap size = %zu (%"PRIu32" bits)\n",
+           dict->size, dict->bits);
+    printf("... checking if hashmap size (%zu) matches (1 << hashmap bits)"
+           " (%"PRIu32") ..\n",
+           dict->size, 1u << dict->bits);
+    testcase_assert_equal(self, (int)(dict->size), (int)(1 << dict->bits));
+    printf("... checking if all hashmap entries are properly initialized ..\n");
+    result = true;
+    for (size_t i = 0; i < dict->size; i++) {
+        if (dict->items[i] != NULL) {
+            result = false;
+            break;
+        }
+    }
+    testcase_assert_true(self, result);
 
-    printf("..... testing dict_free()\n");
-    (*total) += 1;
+    printf("... destroying dict with dict_free()..\n");
     dict_free(dict);
-    (*passed)++;
+    /* can't check anything since everything is freed, use valgrind for a
+     * simple sanity check */
+    testcase_pass(self);
 
     return true;
+}
+
+
+/** \brief  Create test group 'base/dict'
+ *
+ * \return  test group
+ */
+testgroup_t *get_base_dict_tests(void)
+{
+    testgroup_t *group;
+    testcase_t *test;
+
+    group = testgroup_new("base/dict",
+                          "Test the base/dict module",
+                          NULL, NULL);
+
+    test = testcase_new("new",
+                        "Test dict_new()/dict_free()",
+                        3, test_new_free, NULL, NULL);
+    testgroup_add_case(group, test);
+
+    return group;
 }
