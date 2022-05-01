@@ -22,12 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <stddef.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
 
-#include "mem.h"
+#include "debug.h"
+#include "error.h"
 #include "hash.h"
+#include "mem.h"
 
 #include "dict.h"
 
@@ -37,27 +39,57 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #define HASHMAP_SIZE_BITS  10u
 
-#if 0
-static dict_item_t *dict_item_new(const char *key)
+
+
+static const char *type_names[] = {
+    "integer",
+    "string",
+    "pointer"
+};
+
+
+static uint32_t calc_hash(const dict_t *dict, const char *key)
+{
+    return hash_fnv1_tiny((const uint8_t *)key, strlen(key), dict->bits);
+}
+
+
+/** \brief  Allocate and initialize new dict item
+ *
+ * Allocate memory for item, copy key name and set item type to 'undefined'.
+ *
+ * \param[in]   key     item key
+ * \param[in]   value   item value
+ * \param[in]   type    item type
+ *
+ * \return  new item or NULL on failure
+ *
+ * \throw   BASE_ERR_KEY
+ */
+static dict_item_t *dict_item_new(const char *key, dict_value_t value, int type)
 {
     dict_item_t *item;
 
     if (key == NULL || *key == '\0') {
+        base_errno = BASE_ERR_KEY;
         return NULL;
     }
 
     item = base_malloc(sizeof *item);
 
-    /* TODO: implement base_strndup() to avoid scanning key twice */
     item->key = base_strdup(key);
-    item->klen = strlen(key);
-    item->type = DICT_ITEM_UNDEFINED;
+    item->type = type;
+    if (type == DICT_ITEM_STR) {
+        item->value = base_strdup((const char *)value);
+    } else {
+        item->value = value;
+    }
     item->next = NULL;
     item->prev = NULL;
 
     return item;
 }
-#endif
+
 
 static void dict_item_free(dict_item_t *item)
 {
@@ -67,13 +99,62 @@ static void dict_item_free(dict_item_t *item)
         if (item->key != NULL) {
             base_free(item->key);
         }
-        if (item->type == DICT_ITEM_STRING && item->value.str != NULL) {
-            base_free(item->value.str);
+        if (item->type == DICT_ITEM_STR && item->value != NULL) {
+            base_free(item->value);
         }
         next = item->next;
         base_free(item);
         item = next;
     }
+}
+
+
+/** \brief  Get dict value type name
+ *
+ * \param[in]   type    dict value type
+ *
+ * \return  name, or NULL on invalid \a type
+ *
+ * \throw   BASE_ERR_INDEX
+ */
+const char *dict_type_name(dict_type_t type)
+{
+    if (type < 0 || type >= (dict_type_t)base_array_len(type_names)) {
+        base_errno = BASE_ERR_INDEX;
+        return NULL;
+    }
+    return type_names[type];
+}
+
+
+/** \brief  Find item in \a dict by \a key
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ *
+ * \return  item or NULL when not found
+ *
+ * \throw   BASE_ERR_KEY
+ */
+static dict_item_t *find_item(const dict_t *dict, const char *key)
+{
+    dict_item_t *item;
+    uint32_t hash;
+
+    if (key == NULL || *key == '\0') {
+        base_errno = BASE_ERR_KEY;
+        return NULL;
+    }
+
+    hash = calc_hash(dict, key);
+    item = dict->items[hash];
+    while (item != NULL) {
+        if (strcmp(key, item->key) == 0) {
+            break;
+        }
+        item = item->next;
+    }
+    return item;
 }
 
 
@@ -91,6 +172,8 @@ dict_t *dict_new(void)
 
     dict->bits = HASHMAP_SIZE_BITS;
     dict->size = 1u << dict->bits;
+    dict->count = 0;
+    dict->collisions = 0;
 
     dict->items = base_malloc(sizeof *(dict->items) * dict->size);
     for (size_t i = 0; i < dict->size; i++) {
@@ -101,6 +184,12 @@ dict_t *dict_new(void)
 }
 
 
+/** \brief  Free dict
+ *
+ * Free dict, and if any value is a string, free the value as well.
+ *
+ * \param[in]   dict    dict
+ */
 void dict_free(dict_t *dict)
 {
     for (size_t i = 0; i < dict->size; i++) {
@@ -110,4 +199,184 @@ void dict_free(dict_t *dict)
     }
     base_free(dict->items);
     base_free(dict);
+}
+
+
+/** \brief  Set dict item
+ *
+ * Set dict item \a key to \a value, overwriting the previous value if present.
+ *
+ * If \a key exists and the item's value is a string the string be deallocated.
+ * If \a value is a string a copy will be allocated in the \a dict.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[in]   value   item value
+ * \param[in]   type    item type
+ *
+ * \return  true on success
+ *
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_set(dict_t *dict,
+              const char *key,
+              dict_value_t value,
+              dict_type_t type)
+{
+    uint32_t hash;
+    dict_item_t *node;
+
+    if (key == NULL || *key == '\0') {
+        base_errno = BASE_ERR_KEY;
+        return false;
+    }
+
+    hash = calc_hash(dict, key);
+    base_debug("hash of '%s' is 0x%"PRIx32, key, hash);
+    node = dict->items[hash];
+    if (node == NULL) {
+        base_debug("creating first node of list");
+        dict->items[hash] = dict_item_new(key, value, type);
+        dict->count++;
+    } else {
+        /* we've got a hash collision, find tail of linked list to add item or
+         * update value of existing item */
+        dict_item_t *prev = node->prev;
+        base_debug("hash collision, iterating list to add item");
+        while (node != NULL) {
+
+            if (strcmp(key, node->key) == 0) {
+                /* found key: replace value and update type */
+                base_debug("found key, replacing value");
+
+                if (node->type == DICT_ITEM_STR && node->value != NULL) {
+                    /* free old string string */
+                    base_free(node->value);
+                }
+
+                /* set value and type */
+                if (type == DICT_ITEM_STR) {
+                    node->value = base_strdup(value);
+                }
+                node->type = type;
+                return true;
+            }
+            node = node->next;
+        }
+
+        /* different key but with same hash */
+        base_debug("key not found, adding item to list");
+        dict->collisions++;
+        dict->count++;  /* don't forget this! */
+
+        /* create new node, add to tail of list */
+        node = dict_item_new(key, value, type);
+        node->prev = prev;
+        prev->next = node;
+
+    }
+
+    return true;
+}
+
+
+/** \brief  Retrieve item value from dict
+ *
+ * Look up \a key in \a dict and set \a value and \a type if found.
+ * If \a key isn't found this function returns `false` and \a value is set to
+ * `NULL` and \a type is set to `DICT_ITEM_ERR`.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[out]  value   item value
+ * \param[out]  type    item type
+ *
+ * \return  true if \a key was found
+ *
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_get(const dict_t *dict,
+              const char *key,
+              dict_value_t *value,
+              dict_type_t *type)
+{
+    const dict_item_t *item = find_item(dict, key);
+
+    if (item == NULL) {
+        base_errno = BASE_ERR_KEY;
+        *type = DICT_ITEM_ERR;
+        *value = NULL;
+        return false;
+    }
+    *value = item->value;
+    *type = item->type;
+    return true;
+}
+
+
+bool dict_del(dict_t *dict, const char *key)
+{
+    dict_item_t *item = find_item(dict, key);
+
+    if (item == NULL) {
+        return false;
+    } else {
+        /* unlink item */
+        dict_item_t *next = item->next;
+        dict_item_t *prev = item->prev;
+
+        if (item->type == DICT_ITEM_STR && item->value != NULL) {
+            base_free(item->value);
+        }
+        base_free(item);
+
+        /* reconnect linked list */
+        prev->next = next;
+        next->prev = prev;
+        dict->count--;
+        return true;
+    }
+}
+
+
+/** \brief  Determine if a key exists
+ *
+ * Check if \a key is present in \a dict.
+ *
+ * \return  bool
+ *
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_has_key(const dict_t *dict, const char *key)
+{
+    return find_item(dict, key) != NULL ? true : false;
+}
+
+
+/** \brief  Get keys in the dict
+ *
+ * Get an unsorted list of keys in the dict.
+ *
+ * \note    The list must be freed with base_free() but the keys are owned
+ *          by the \a dict and must not be freed.
+ *
+ * \return  NULL-terminated list of keys in \a dict
+ */
+const char **dict_keys(const dict_t *dict)
+{
+    const char **keys;
+    size_t index = 0;
+
+    keys = base_malloc(sizeof *keys * (dict->count + 1u));
+
+    for (size_t hash = 0; hash < dict->size; hash++) {
+        const dict_item_t *item = dict->items[hash];
+
+        while (item != NULL) {
+            keys[index++] = item->key;
+            item = item->next;
+        }
+    }
+    keys[index] = NULL;
+    return keys;
 }

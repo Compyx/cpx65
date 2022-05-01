@@ -28,26 +28,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stddef.h>
 #include <stdint.h>
 
+/** \brief  Dict type enum
+ */
+typedef enum dict_type_e {
+    DICT_ITEM_ERR = -1, /**< error code */
+    DICT_ITEM_INT,      /**< signed integer value */
+    DICT_ITEM_STR,      /**< string (allocated/freed by dict */
+    DICT_ITEM_PTR,      /**< pointer value */
+} dict_type_t;
 
-enum {
-    DICT_ITEM_UNDEFINED,    /**< item is not defined */
-    DICT_ITEM_INTEGER,      /**< signed integer value */
-    DICT_ITEM_DOUBLE,       /**< double value */
-    DICT_ITEM_STRING,       /**< string (allocated/freed by dict */
-    DICT_ITEM_POINTER,      /**< pointer value */
-};
+
+/** \brief  Dict value type */
+typedef void* dict_value_t;
+
+#define DICT_INT_TO_VALUE(x)    (dict_value_t)(intptr_t)(x)
+#define DICT_STR_TO_VALUE(x)    (dict_value_t)(x)
+#define DICT_PTR_TO_VALUE(x)    (x)
+
+#define DICT_VALUE_TO_INT(x) (int)(intptr_t)(x)
+#define DICT_VALUE_TO_STR(x) (const char *)(x)
+#define DICT_VALUE_TO_PTR(x) (x)
 
 
 typedef struct dict_item_s {
-    char *  key;        /**< key */
-    size_t  klen;       /**< length of string \a key */
-    int     type;       /**< value type */
-    union {
-        char *  str;    /**< string, allocated/freed by the dict */
-        int     ival;   /**< integer value */
-        double  dbl;    /**< double value */
-        void *  ptr;    /**< pointer value */
-    } value;            /**< value */
+    char *key;                  /**< key */
+    dict_type_t type;           /**< value type */
+    dict_value_t value;         /**< value */
     struct dict_item_s *next;   /**< next item in the list */
     struct dict_item_s *prev;   /**< previous item in the list */
 } dict_item_t;
@@ -55,18 +61,40 @@ typedef struct dict_item_s {
 
 
 typedef struct dict_s {
-    dict_item_t **  items;  /**< hash map with linked lists */
-    size_t          size;   /**< size of hash map in entries */
-    uint32_t        bits;   /**< size of hash in bits */
+    dict_item_t **  items;      /**< hash map with linked lists */
+    size_t          size;       /**< size of hash map in entries */
+    uint32_t        bits;       /**< size of hash in bits */
+    size_t          count;      /**< number of items in dict */
+    size_t          collisions; /**< number of hash collisions */
 } dict_t;
 
 
-dict_t *dict_new    (void);
-void    dict_free   (dict_t *dict);
+const char *    dict_type_name(dict_type_t type);
 
-bool    dict_set_int(dict_t *dict, const char *key, int value);
-bool    dict_get_int(dict_t *dict, const char *key, int *value);
-bool    dict_delete (dict_t *dict, const char *key);
+dict_t *        dict_new    (void);
 
+void            dict_free   (dict_t *dict);
+
+bool            dict_set    (dict_t *dict,
+                             const char *key,
+                             dict_value_t value,
+                             dict_type_t type);
+
+bool            dict_get    (const dict_t *dict,
+                             const char *key,
+                             dict_value_t *value,
+                             dict_type_t *type);
+
+bool            dict_del    (dict_t *dict, const char *key);
+
+bool            dict_has_key(const dict_t *dict, const char *key);
+
+const char **   dict_keys   (const dict_t *dict);
+
+#if 0
+bool            dict_set_int(dict_t *dict, const char *key, int value);
+
+bool            dict_get_int(const dict_t *dict, const char *key, int *value);
+#endif
 
 #endif

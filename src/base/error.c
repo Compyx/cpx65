@@ -39,7 +39,11 @@ static const char *err_msgs[] = {
     "OK",
     "memory allocation error",
     "I/O error",
-    "invalid size"
+    "invalid size",
+    "cannot be NULL",
+    "cannot be empty",
+    "key error",
+    "index error"
 };
 
 

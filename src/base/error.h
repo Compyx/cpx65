@@ -37,6 +37,10 @@ enum {
     BASE_ERR_ALLOC,         /**< memory allocation error */
     BASE_ERR_IO,            /**< I/O error */
     BASE_ERR_INVALID_SIZE,  /**< invalid size */
+    BASE_ERR_NULL,          /**< unexpected NULL value */
+    BASE_ERR_EMPTY,         /**< something shouldn't be empty */
+    BASE_ERR_KEY,           /**< key error */
+    BASE_ERR_INDEX          /**< index error */
 };
 
 /** \brief  Print error code and message on stderr
