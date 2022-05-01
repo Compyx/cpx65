@@ -73,11 +73,11 @@ uint32_t hash_fnv1_32(const uint8_t *data, size_t size)
  *
  * \return  16-bit FNV-1a hash
  */
-uint16_t hash_fnv1_16(const uint8_t *data, size_t size)
+uint32_t hash_fnv1_16(const uint8_t *data, size_t size)
 {
     uint32_t hash = hash_fnv1_32(data, size);
 
-    return (uint16_t)((hash >> 16u) ^ (hash & FNV1_MASK_16));
+    return (hash >> 16u) ^ (hash & FNV1_MASK_16);
 }
 
 
@@ -94,9 +94,9 @@ uint16_t hash_fnv1_16(const uint8_t *data, size_t size)
  * \return  FNV-1a hash of \a bits size
  */
 
-uint16_t hash_fnv1_tiny(const uint8_t *data, size_t size, uint32_t bits)
+uint32_t hash_fnv1_tiny(const uint8_t *data, size_t size, uint32_t bits)
 {
     uint32_t hash = hash_fnv1_32(data, size);
 
-    return (uint16_t)(((hash >> bits) ^ hash) & ((1u << bits) - 1u));
+    return ((hash >> bits) ^ hash) & ((1u << bits) - 1u);
 }

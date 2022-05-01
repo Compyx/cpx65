@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdint.h>
 
 uint32_t hash_fnv1_32(const uint8_t *data, size_t size);
-uint16_t hash_fnv1_16(const uint8_t *data, size_t size);
-uint16_t hash_fnv1_tiny(const uint8_t *data, size_t size, uint32_t bits);
+uint32_t hash_fnv1_16(const uint8_t *data, size_t size);
+uint32_t hash_fnv1_tiny(const uint8_t *data, size_t size, uint32_t bits);
 
 #endif
