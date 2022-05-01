@@ -64,7 +64,7 @@ static uint32_t calc_hash(const dict_t *dict, const char *key)
  *
  * \return  new item or NULL on failure
  *
- * \throw   BASE_ERR_KEY
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
  */
 static dict_item_t *dict_item_new(const char *key, dict_value_t value, int type)
 {
@@ -115,12 +115,12 @@ static void dict_item_free(dict_item_t *item)
  *
  * \return  name, or NULL on invalid \a type
  *
- * \throw   BASE_ERR_INDEX
+ * \throw   BASE_ERR_ENUM   \a type is invalid
  */
 const char *dict_type_name(dict_type_t type)
 {
     if (type < 0 || type >= (dict_type_t)base_array_len(type_names)) {
-        base_errno = BASE_ERR_INDEX;
+        base_errno = BASE_ERR_ENUM;
         return NULL;
     }
     return type_names[type];
@@ -134,7 +134,7 @@ const char *dict_type_name(dict_type_t type)
  *
  * \return  item or NULL when not found
  *
- * \throw   BASE_ERR_KEY
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
  */
 static dict_item_t *find_item(const dict_t *dict, const char *key)
 {
@@ -217,6 +217,7 @@ void dict_free(dict_t *dict)
  * \return  true on success
  *
  * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \throw   BASE_ERR_ENUM   \a type is invalid
  */
 bool dict_set(dict_t *dict,
               const char *key,
@@ -228,6 +229,10 @@ bool dict_set(dict_t *dict,
 
     if (key == NULL || *key == '\0') {
         base_errno = BASE_ERR_KEY;
+        return false;
+    }
+    if (type < 0 || type > DICT_ITEM_PTR) {
+        base_errno = BASE_ERR_ENUM;
         return false;
     }
 

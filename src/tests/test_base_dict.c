@@ -185,7 +185,7 @@ testgroup_t *get_base_dict_tests(void)
 
     test = testcase_new("set",
                         "Test dict_set()",
-                        6, test_set, setup, teardown);
+                        8, test_set, setup, teardown);
     testgroup_add_case(group, test);
 
     return group;
