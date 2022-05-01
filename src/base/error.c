@@ -43,7 +43,8 @@ static const char *err_msgs[] = {
     "cannot be NULL",
     "cannot be empty",
     "key error",
-    "index error"
+    "index error",
+    "invalid enum value"
 };
 
 
