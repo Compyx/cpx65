@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "testcase.h"
 #include "../base/dict.h"
 #include "../base/error.h"
+#include "../base/mem.h"
 
 #include "test_base_dict.h"
 
@@ -165,6 +166,149 @@ static bool test_set(testcase_t *self)
 }
 
 
+/** \brief  Object for keys test
+ */
+typedef struct keys_test_s {
+    const char *key;    /**< key */
+    int         value;  /**< value */
+    int         found;  /**< number of times the key was found in the result
+                             of dict_keys() (should be 1) */
+} keys_test_t;
+
+/** \brief  List of tests for dict_keys()
+ *
+ * Do not make const, the test code sets the booleans when checking if all keys
+ * are returned.
+ */
+static keys_test_t keys_tests[] = {
+    { "one", 1, 0 },
+    { "two", 2, 0 },
+    { "three", 3, 0 },
+    { "four", 4, 0 },
+    { "five", 5, 0 }
+};
+
+
+/** \brief  Test dict_has_key() and dict_keys()
+ *
+ * \param[in]   self    test case
+ *
+ * \return  false on fatal error
+ */
+static bool test_keys(testcase_t *self)
+{
+    int i;
+    const char *key;
+    int value;
+    bool result;
+    const char **keys;
+    bool found;
+
+    /* set up test items */
+    printf("... adding items to the dict:\n");
+    for (i = 0; i < (int)base_array_len(keys_tests); i++) {
+        key = keys_tests[i].key;
+        value = keys_tests[i].value;
+
+        printf("..... '%s' => %d .. ", key, value);
+        if (dict_set(dict, key, DICT_INT_TO_VALUE(value), DICT_ITEM_INT)) {
+            printf("OK\n");
+        } else {
+            printf("failed\n");
+            return false;   /* fatal, no use to continue the test */
+        }
+    }
+
+    /* test #1: test for existing keys */
+    printf("... testing dict_has_key():\n");
+    found = true;
+    for (i = 0; i < (int)base_array_len(keys_tests); i++) {
+        key = keys_tests[i].key;
+        result = dict_has_key(dict, key);
+
+        printf("..... dict_has_key(\"%s\") = %s\n", key, result ? "true" : "false");
+        if (!result) {
+            found = false;
+        }
+    }
+    testcase_assert_true(self, found);
+
+    /* test #2: using non-existent key (but valid string) */
+    base_errno = 0;
+    result = dict_has_key(dict, "no have key!");
+    printf("... testing dict_has_key(\"no have key!\") = %s\n",
+           result ? "true" : "false");
+    testcase_assert_false(self, result);
+
+    /* test #3: check error code, should not set errno */
+    printf("... checking error code: got %d ('%s'), expected %d ('%s')\n",
+           base_errno, base_strerror(base_errno),
+           BASE_ERR_OK, base_strerror(BASE_ERR_OK));
+    testcase_assert_equal(self, base_errno, BASE_ERR_OK);
+
+    /* test #4: using NULL for key */
+    base_errno = 0;
+    result = dict_has_key(dict, NULL);
+    printf("... testing dict_has_key(NULL) = %s\n",
+           result ? "true" : "false");
+    testcase_assert_false(self, result);
+
+    /* test #5: check error code for key error */
+    printf("... checking error code: got %d ('%s'), expected %d ('%s')\n",
+           base_errno, base_strerror(base_errno),
+           BASE_ERR_KEY, base_strerror(BASE_ERR_KEY));
+    testcase_assert_equal(self, base_errno, BASE_ERR_KEY);
+
+    /* test #6: using "" for key */
+    base_errno = 0;
+    result = dict_has_key(dict, "");
+    printf("... testing dict_has_key(\"\") = %s\n",
+           result ? "true" : "false");
+    testcase_assert_false(self, result);
+
+    /* test #7: check error code for key error */
+    printf("... checking error code: got %d ('%s'), expected %d ('%s')\n",
+           base_errno, base_strerror(base_errno),
+           BASE_ERR_KEY, base_strerror(BASE_ERR_KEY));
+    testcase_assert_equal(self, base_errno, BASE_ERR_KEY);
+
+    /* test #8: test dict_keys() */
+    printf("... testing dict_keys(): requesting list of keys\n");
+    keys = dict_keys(dict);
+    printf("..... [ ");
+    for (i = 0; keys[i] != NULL; i++) {
+        printf("'%s'", keys[i]);
+        if (i < (int)(base_array_len(keys_tests)) - 1) {
+            printf(", ");
+        }
+
+        /* mark the key found in the array */
+        for (int k = 0; k < (int)(base_array_len(keys_tests)); k++) {
+            if (strcmp(keys_tests[k].key, keys[i]) == 0) {
+                keys_tests[k].found++;
+                break;
+            }
+        }
+    }
+    printf(" ]\n");
+
+    /* check if we found all keys we added and all occur exactly once */
+    found = true;
+    printf("... checking if all keys are present and only occur once ..\n");
+    for (i = 0; i < (int)(base_array_len(keys_tests)); i++) {
+        if (keys_tests[i].found != 1) {
+            found = false;
+            break;
+        }
+    }
+    testcase_assert_true(self, found);
+
+    base_free(keys);
+
+    return true;
+}
+
+
 /** \brief  Create test group 'base/dict'
  *
  * \return  test group
@@ -186,6 +330,11 @@ testgroup_t *get_base_dict_tests(void)
     test = testcase_new("set",
                         "Test dict_set()",
                         8, test_set, setup, teardown);
+    testgroup_add_case(group, test);
+
+    test = testcase_new("keys",
+                        "Test dict_keys() and dict_has_key()",
+                        8, test_keys, setup, teardown);
     testgroup_add_case(group, test);
 
     return group;

@@ -237,10 +237,10 @@ bool dict_set(dict_t *dict,
     }
 
     hash = calc_hash(dict, key);
-    base_debug("hash of '%s' is 0x%"PRIx32, key, hash);
+    //base_debug("hash of '%s' is 0x%"PRIx32, key, hash);
     node = dict->items[hash];
     if (node == NULL) {
-        base_debug("creating first node of list");
+        //base_debug("creating first node of list");
         dict->items[hash] = dict_item_new(key, value, type);
         dict->count++;
     } else {
