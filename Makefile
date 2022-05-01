@@ -57,9 +57,9 @@ TEST_OBJS = \
 	test_base_dict.o \
 	test_base_io.o \
 	test_base_mem.o \
-	test_base_objpool.o
+	test_base_objpool.o \
+	test_base_strpool.o
 #	test_symtab.o \
-#	test_strpool.o \
 
 
 $(BIN_ASM): src/asm/main.o $(BASE_OBJS)

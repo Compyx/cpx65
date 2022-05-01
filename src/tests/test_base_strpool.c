@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "../base/strlist.h"
 #include "../base/strpool.h"
 
-#include "test_strpool.h"
+#include "test_base_strpool.h"
 
 
 
@@ -43,9 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static bool setup(void);
 static bool teardown(void);
-
-static bool test_add(int *total, int *passed);
-static bool test_del(int *total, int *passed);
 
 
 static char *list1[] = {
@@ -60,23 +57,6 @@ static char *list1[] = {
     "bla",
     "iweurowieuroiuweorewr",
     "erwerwer"
-};
-
-
-
-static unit_test_t tests[] = {
-    { "add", "Test adding strings", test_add, false },
-    { "del", "Test deleting strings", test_del, false },
-    { NULL, NULL, NULL, false }
-};
-
-
-unit_module_t strpool_module = {
-    "strpool",
-    "Test string pool handling",
-    setup, teardown,
-    0, 0,
-    tests
 };
 
 
@@ -118,38 +98,61 @@ static bool teardown(void)
  * Unit tests
  */
 
-static bool test_add(int *total, int *passed)
+/* FIXME: Write proper test */
+static bool test_add(testcase_t *self)
 {
     size_t i;
     void *obj;
 
-    (*total)++;
-
     for (i = 0; i < sizeof list1 / sizeof list1[0]; i++) {
-        printf(".... adding '%s':\n", list1[i]);
+        printf("... adding '%s':\n", list1[i]);
         obj = strpool_add(list1[i]);
         used_objects_add(obj);
     }
 
     strpool_dump_stats();
 
-    (*passed)++;
+    testcase_pass(self);
     return true;
 }
 
 
 
-static bool test_del(int *total, int *passed)
+static bool test_del(testcase_t *self)
 {
     void *obj;
-
-    (*total)++;
 
     obj = used_objects_list[0];
     strpool_del(obj);
     used_objects_list[0] = NULL;
 
-
-    (*passed)++;
+    testcase_pass(self);
     return true;
+}
+
+
+/** \brief  Create test group 'base/strpool'
+ *
+ * \return  test group
+ */
+testgroup_t *get_base_strpool_tests(void)
+{
+    testgroup_t *group;
+    testcase_t *test;
+
+    group = testgroup_new("base/strpool",
+                          "Test the string pool module",
+                          setup, teardown);
+
+    test = testcase_new("add",
+                        "Test adding items to a string pool",
+                        1, test_add, NULL, NULL);
+    testgroup_add_case(group, test);
+
+    test = testcase_new("del",
+                        "Test deleting items from a string pool",
+                        1, test_del, NULL, NULL);
+    testgroup_add_case(group, test);
+
+    return group;
 }
