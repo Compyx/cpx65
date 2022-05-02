@@ -24,26 +24,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef BASE_SYMTAB_H
 #define BASE_SYMTAB_H
 
+
+/** \brief  Symbol types
+ */
 enum {
-    SYM_ILL = -1,
-    SYM_SYMTAB,
-    SYM_SYMBOL,
-    SYM_MACRO,
-    SYM_FUNC
+    SYM_ILL = -1,   /**< error code */
+    SYM_SYMTAB,     /**< symbol table */
+    SYM_SYMBOL,     /**< normal symbol */
+    SYM_MACRO,      /**< macro */
+    SYM_FUNC        /**< function */
 };
 
 
+/** \brief  Symbol table binary tree node
+ */
 typedef struct symtab_node_s {
-    struct symtab_node_s *parent;
-    struct symtab_node_s *left;
-    struct symtab_node_s *right;
-    void *object;
-    char *name;
-    int type;
+    struct symtab_node_s *parent;   /**< parent node */
+    struct symtab_node_s *left;     /**< left node */
+    struct symtab_node_s *right;    /**< right node */
+    void *object;                   /**< symbol value */
+    char *name;                     /**< symbol name */
+    int type;                       /**< symbol type */
 } symtab_node_t;
 
+
+/** \brief  Symbol table object
+ */
 typedef struct symtab_s {
-    symtab_node_t *root;
+    symtab_node_t *root;    /**< binary tree root node */
 } symtab_t;
 
 

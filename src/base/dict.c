@@ -1,5 +1,6 @@
 /** \file   dict.c
  * \brief   Simple dictionary implementation
+ * \ingroup base
  */
 
 /*
@@ -40,7 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define HASHMAP_SIZE_BITS  10u
 
 
-
+/** \brief  Type names table
+ */
 static const char *type_names[] = {
     "integer",
     "string",
@@ -48,6 +50,13 @@ static const char *type_names[] = {
 };
 
 
+/** \brief  Calculate hash of a key
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     key name
+ *
+ * \return  fnv-1a hash of \a key
+ */
 static uint32_t calc_hash(const dict_t *dict, const char *key)
 {
     return hash_fnv1_tiny((const uint8_t *)key, strlen(key), dict->bits);
@@ -62,9 +71,8 @@ static uint32_t calc_hash(const dict_t *dict, const char *key)
  * \param[in]   value   item value
  * \param[in]   type    item type
  *
- * \return  new item or NULL on failure
- *
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  new item or `NULL` on failure
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 static dict_item_t *dict_item_new(const char *key, dict_value_t value, int type)
 {
@@ -91,6 +99,12 @@ static dict_item_t *dict_item_new(const char *key, dict_value_t value, int type)
 }
 
 
+/** \brief  Free item and all of its siblings
+ *
+ * Free \a item and its data, freeing any siblings in the linked list as well.
+ *
+ * \param[in]   item    linked list node
+ */
 static void dict_item_free(dict_item_t *item)
 {
     while (item != NULL) {
@@ -113,8 +127,7 @@ static void dict_item_free(dict_item_t *item)
  *
  * \param[in]   type    dict value type
  *
- * \return  name, or NULL on invalid \a type
- *
+ * \return  name, or `NULL` on invalid \a type
  * \throw   BASE_ERR_ENUM   \a type is invalid
  */
 const char *dict_type_name(dict_type_t type)
@@ -138,9 +151,8 @@ const char *dict_type_name(dict_type_t type)
  * \param[in]   key         item key
  * \param[out]  hash_result hash result (optional)
  *
- * \return  item or NULL when not found
- *
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  item or `NULL` when not found
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 static dict_item_t *find_item(const dict_t *dict,
                               const char *key,
@@ -226,9 +238,8 @@ void dict_free(dict_t *dict)
  * \param[in]   value   item value
  * \param[in]   type    item type
  *
- * \return  true on success
- *
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` on success
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  * \throw   BASE_ERR_ENUM   \a type is invalid
  */
 bool dict_set(dict_t *dict,
@@ -308,9 +319,8 @@ bool dict_set(dict_t *dict,
  * \param[out]  value   item value (optional)
  * \param[out]  type    item type (optional)
  *
- * \return  true if \a key was found
- *
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` if \a key was found
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_get(const dict_t *dict,
               const char *key,
@@ -338,9 +348,11 @@ bool dict_get(const dict_t *dict,
  * Remove item at \a key from \a dict, freeing its value if the item's value
  * is a string.
  *
- * \return  true if \a key was found
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
  *
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  true if \a key was found
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_remove(dict_t *dict, const char *key)
 {
@@ -385,9 +397,11 @@ bool dict_remove(dict_t *dict, const char *key)
  *
  * Check if \a key is present in \a dict.
  *
- * \return  bool
+ * \param[in]   dict    dict
+ * \param[in]   key     key
  *
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` if \a key exists
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_has_key(const dict_t *dict, const char *key)
 {
@@ -399,10 +413,12 @@ bool dict_has_key(const dict_t *dict, const char *key)
  *
  * Get an unsorted list of keys in the dict.
  *
+ * \param[in]   dict    dict
+ *
  * \note    The list must be freed with base_free() but the keys are owned
  *          by the \a dict and must not be freed.
  *
- * \return  NULL-terminated list of keys in \a dict
+ * \return  `NULL`-terminated list of keys in \a dict
  */
 const char **dict_keys(const dict_t *dict)
 {
@@ -439,8 +455,8 @@ const char **dict_keys(const dict_t *dict)
  * \param[in]   key     item key
  * \param[in]   value   item value
  *
- * \return  true on success
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` on success
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_set_int(dict_t *dict, const char *key, int value)
 {
@@ -456,8 +472,8 @@ bool dict_set_int(dict_t *dict, const char *key, int value)
  * \param[in]   key     item key
  * \param[out]  value   item value
  *
- * \return  true on success
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` on success
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_get_int(const dict_t *dict, const char *key, int *value)
 {
@@ -483,8 +499,8 @@ bool dict_get_int(const dict_t *dict, const char *key, int *value)
  * \param[in]   key     item key
  * \param[in]   value   item value
  *
- * \return  true on success
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` on success
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_set_str(dict_t *dict, const char *key, char *value)
 {
@@ -502,8 +518,8 @@ bool dict_set_str(dict_t *dict, const char *key, char *value)
  * \param[in]   key     item key
  * \param[out]  value   item value
  *
- * \return  true on success
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` on success
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_get_str(const dict_t *dict, const char *key, char **value)
 {
@@ -526,8 +542,8 @@ bool dict_get_str(const dict_t *dict, const char *key, char **value)
  * \param[in]   key     item key
  * \param[in]   value   item value
  *
- * \return  true on success
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` on success
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_set_ptr(dict_t *dict, const char *key, void *value)
 {
@@ -543,8 +559,8 @@ bool dict_set_ptr(dict_t *dict, const char *key, void *value)
  * \param[in]   key     item key
  * \param[out]  value   item value
  *
- * \return  true on success
- * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ * \return  `true` on success
+ * \throw   BASE_ERR_KEY    \a key is `NULL` or empty
  */
 bool dict_get_ptr(const dict_t *dict, const char *key, void **value)
 {

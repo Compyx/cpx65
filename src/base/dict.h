@@ -1,5 +1,6 @@
 /** \file   dict.h
  * \brief   Simple dictionary implementation - header
+ * \ingroup base
  */
 
 /*
@@ -38,18 +39,65 @@ typedef enum dict_type_e {
 } dict_type_t;
 
 
-/** \brief  Dict value type */
+/** \brief  Dict value opaque type
+ */
 typedef void* dict_value_t;
 
-#define DICT_INT_TO_VALUE(x)    (dict_value_t)(intptr_t)(x)
-#define DICT_STR_TO_VALUE(x)    (dict_value_t)(x)
-#define DICT_PTR_TO_VALUE(x)    (x)
 
-#define DICT_VALUE_TO_INT(x) (int)(intptr_t)(x)
-#define DICT_VALUE_TO_STR(x) (char *)(x)
-#define DICT_VALUE_TO_PTR(x) (x)
+/** \brief  Convert int to dict value
+ *
+ * \param[in]   i_  int
+ *
+ * \return  dict value
+ */
+#define DICT_INT_TO_VALUE(i_) (dict_value_t)(intptr_t)(i_)
 
 
+/** \brief  Convert string to dict value
+ *
+ * \param[in]   s_  char*
+ *
+ * \return  dict value
+ */
+#define DICT_STR_TO_VALUE(s_) (dict_value_t)(s_)
+
+
+/** \brief  Convert pointer to dict value
+ *
+ * \param[in]   p_  void*
+ *
+ * \return  dict value
+ */
+#define DICT_PTR_TO_VALUE(p_) (p_)
+
+
+/** \brief  Convert dict value to int
+ *
+ * \param[in]   v_  dict value
+ *
+ * \return  int
+ */
+#define DICT_VALUE_TO_INT(v_) (int)(intptr_t)(v_)
+
+/** \brief  Convert dict value to string
+ *
+ * \param[in]   v_  dict value
+ *
+ * \return  char*
+ */
+#define DICT_VALUE_TO_STR(v_) (char *)(v_)
+
+/** \brief  Convert dict value to pointer
+ *
+ * \param[in]   v_  dict value
+ *
+ * \return  void*
+ */
+#define DICT_VALUE_TO_PTR(v_) (v_)
+
+
+/** \brief  Dictionary item object
+ */
 typedef struct dict_item_s {
     char *key;                  /**< key */
     dict_type_t type;           /**< value type */
@@ -59,7 +107,8 @@ typedef struct dict_item_s {
 } dict_item_t;
 
 
-
+/** \brief  Dictionary object
+ */
 typedef struct dict_s {
     dict_item_t **  items;      /**< hash map with linked lists */
     size_t          size;       /**< size of hash map in entries */
