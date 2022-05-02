@@ -59,6 +59,8 @@ static const char *type_names[] = {
  */
 static uint32_t calc_hash(const dict_t *dict, const char *key)
 {
+    /* To easily test the collision handling of the code, make this always
+     * return 0 and rebuild. */
     return hash_fnv1_tiny((const uint8_t *)key, strlen(key), dict->bits);
 }
 
@@ -270,12 +272,12 @@ bool dict_set(dict_t *dict,
         /* we've got a hash collision, find tail of linked list to add item or
          * update value of existing item */
         dict_item_t *prev = node->prev;
-        base_debug("hash collision, iterating list to add item");
+        //base_debug("hash collision, iterating list to add item");
         while (node != NULL) {
 
             if (strcmp(key, node->key) == 0) {
                 /* found key: replace value and update type */
-                base_debug("found key, replacing value");
+                //base_debug("found key, replacing value");
 
                 if (node->type == DICT_ITEM_STR && node->value != NULL) {
                     /* free old string string */
@@ -289,11 +291,12 @@ bool dict_set(dict_t *dict,
                 node->type = type;
                 return true;
             }
+            prev = node;
             node = node->next;
         }
 
         /* different key but with same hash */
-        base_debug("key not found, adding item to list");
+        //base_debug("key not found, adding item to list");
         dict->collisions++;
         dict->count++;  /* don't forget this! */
 
@@ -390,6 +393,26 @@ bool dict_remove(dict_t *dict, const char *key)
         dict->count--;  /* update item count */
         return true;
     }
+}
+
+
+/** \brief  Remove all items from a dict
+ *
+ * Remove all items from \a dict, reinitializing the hash table.
+ *
+ * \param[in]   dict    dict
+ *
+ * \note    Does not free \a dict itself or reset the collisions count.
+ */
+void dict_remove_all(dict_t *dict)
+{
+    for (size_t i = 0; i < dict->size; i++) {
+        if (dict->items[i] != NULL) {
+            dict_item_free(dict->items[i]);
+            dict->items[i] = NULL;
+        }
+    }
+    dict->count = 0;
 }
 
 

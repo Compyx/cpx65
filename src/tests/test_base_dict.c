@@ -185,7 +185,14 @@ static keys_test_t keys_tests[] = {
     { "two", 2, 0 },
     { "three", 3, 0 },
     { "four", 4, 0 },
-    { "five", 5, 0 }
+    { "five", 5, 0 },
+#if 0
+    { "six", 6, 0 },
+    { "seven", 7, 0 },
+    { "eight", 8, 0 },
+    { "nine", 9, 0 },
+    { "ten", 10, 0 }
+#endif
 };
 
 

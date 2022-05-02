@@ -136,6 +136,8 @@ bool            dict_get    (const dict_t *dict,
 
 bool            dict_remove (dict_t *dict, const char *key);
 
+void            dict_remove_all(dict_t *dict);
+
 bool            dict_has_key(const dict_t *dict, const char *key);
 
 const char **   dict_keys   (const dict_t *dict);
