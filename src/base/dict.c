@@ -300,13 +300,13 @@ bool dict_set(dict_t *dict,
 /** \brief  Retrieve item value from dict
  *
  * Look up \a key in \a dict and set \a value and \a type if found.
- * If \a key isn't found this function returns `false` and \a value is set to
- * `NULL` and \a type is set to `DICT_ITEM_ERR`.
+ * Both \a value and \a type can be ignored by passing `NULL`. If both are `NULL`
+ * this function acts as if calling dict_has_key().
  *
  * \param[in]   dict    dict
  * \param[in]   key     item key
- * \param[out]  value   item value
- * \param[out]  type    item type
+ * \param[out]  value   item value (optional)
+ * \param[out]  type    item type (optional)
  *
  * \return  true if \a key was found
  *
@@ -321,12 +321,14 @@ bool dict_get(const dict_t *dict,
 
     if (item == NULL) {
         base_errno = BASE_ERR_KEY;
-        *type = DICT_ITEM_ERR;
-        *value = NULL;
         return false;
     }
-    *value = item->value;
-    *type = item->type;
+    if (value != NULL) {
+        *value = item->value;
+    }
+    if (type != NULL) {
+        *type = item->type;
+    }
     return true;
 }
 
@@ -419,4 +421,139 @@ const char **dict_keys(const dict_t *dict)
     }
     keys[index] = NULL;
     return keys;
+}
+
+
+/*
+ * Type-specific wrappers
+ *
+ * These wrappers can be used to simplify code a bit if an item's type is known
+ * or if the dict only contains one type of items.
+ */
+
+/** \brief  Set integer value in dict
+ *
+ * Set integer value in \a dict at \a key to \a value.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[in]   value   item value
+ *
+ * \return  true on success
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_set_int(dict_t *dict, const char *key, int value)
+{
+    return dict_set(dict, key, DICT_INT_TO_VALUE(value), DICT_ITEM_INT);
+}
+
+
+/** \brief  Get integer value from dict
+ *
+ * Get integer value from \a dict at \a key and store in \a value.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[out]  value   item value
+ *
+ * \return  true on success
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_get_int(const dict_t *dict, const char *key, int *value)
+{
+    dict_value_t val;
+    bool result;
+
+    result = dict_get(dict, key, &val, NULL);
+    if (result) {
+        *value = DICT_VALUE_TO_INT(val);
+    }
+    return result;
+}
+
+
+/** \brief  Set string value in dict
+ *
+ * Set string value in \a dict at \a key to \a value.
+ *
+ * A copy of \a value is made by the dict so the calling code can safely free
+ * \a value after calling this function.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[in]   value   item value
+ *
+ * \return  true on success
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_set_str(dict_t *dict, const char *key, char *value)
+{
+    return dict_set(dict, key, DICT_STR_TO_VALUE(value), DICT_ITEM_STR);
+}
+
+
+/** \brief  Get string value from dict
+ *
+ * Get string value from \a dict at \a key and store in \a value.
+ *
+ * The returned string is owned by the dict and should not be freed.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[out]  value   item value
+ *
+ * \return  true on success
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_get_str(const dict_t *dict, const char *key, char **value)
+{
+    dict_value_t val;
+    bool result;
+
+    result = dict_get(dict, key, &val, NULL);
+    if (result) {
+        *value = DICT_VALUE_TO_STR(val);
+    }
+    return result;
+}
+
+
+/** \brief  Set pointer value in dict
+ *
+ * Set pointer value in \a dict at \a key to \a value.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[in]   value   item value
+ *
+ * \return  true on success
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_set_ptr(dict_t *dict, const char *key, void *value)
+{
+    return dict_set(dict, key, DICT_PTR_TO_VALUE(value), DICT_ITEM_PTR);
+}
+
+
+/** \brief  Get pointer value from dict
+ *
+ * Get pointer value from \a dict at \a key and store in \a value.
+ *
+ * \param[in]   dict    dict
+ * \param[in]   key     item key
+ * \param[out]  value   item value
+ *
+ * \return  true on success
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_get_ptr(const dict_t *dict, const char *key, void **value)
+{
+    dict_value_t val;
+    bool result;
+
+    result = dict_get(dict, key, &val, NULL);
+    if (result) {
+        *value = DICT_VALUE_TO_PTR(val);
+    }
+    return result;
 }

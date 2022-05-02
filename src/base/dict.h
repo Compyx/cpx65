@@ -46,7 +46,7 @@ typedef void* dict_value_t;
 #define DICT_PTR_TO_VALUE(x)    (x)
 
 #define DICT_VALUE_TO_INT(x) (int)(intptr_t)(x)
-#define DICT_VALUE_TO_STR(x) (const char *)(x)
+#define DICT_VALUE_TO_STR(x) (char *)(x)
 #define DICT_VALUE_TO_PTR(x) (x)
 
 
@@ -91,10 +91,13 @@ bool            dict_has_key(const dict_t *dict, const char *key);
 
 const char **   dict_keys   (const dict_t *dict);
 
-#if 0
 bool            dict_set_int(dict_t *dict, const char *key, int value);
-
 bool            dict_get_int(const dict_t *dict, const char *key, int *value);
-#endif
+
+bool            dict_set_str(dict_t *dict, const char *key, char *value);
+bool            dict_get_str(const dict_t *dict, const char *key, char **value);
+
+bool            dict_set_ptr(dict_t *dict, const char *key, void *value);
+bool            dict_get_ptr(const dict_t *dict, const char *key, void **value);
 
 #endif
