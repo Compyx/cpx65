@@ -127,16 +127,24 @@ const char *dict_type_name(dict_type_t type)
 }
 
 
-/** \brief  Find item in \a dict by \a key
+/** \brief  Find item by key
  *
- * \param[in]   dict    dict
- * \param[in]   key     item key
+ * Find item in \a dict at \a key, optionally storing the hash of the key at
+ * \a hash_result.
+ * The \a hash_result argument can be used to avoid having to calculate the hash
+ * of a key twice (as in dict_remove()), use `NULL` to ignore the hash result.
+ *
+ * \param[in]   dict        dict
+ * \param[in]   key         item key
+ * \param[out]  hash_result hash result (optional)
  *
  * \return  item or NULL when not found
  *
  * \throw   BASE_ERR_KEY    \a key is NULL or empty
  */
-static dict_item_t *find_item(const dict_t *dict, const char *key)
+static dict_item_t *find_item(const dict_t *dict,
+                              const char *key,
+                              uint32_t *hash_result)
 {
     dict_item_t *item;
     uint32_t hash;
@@ -147,6 +155,10 @@ static dict_item_t *find_item(const dict_t *dict, const char *key)
     }
 
     hash = calc_hash(dict, key);
+    if (hash_result != NULL) {
+        *hash_result = hash;
+    }
+
     item = dict->items[hash];
     while (item != NULL) {
         if (strcmp(key, item->key) == 0) {
@@ -305,7 +317,7 @@ bool dict_get(const dict_t *dict,
               dict_value_t *value,
               dict_type_t *type)
 {
-    const dict_item_t *item = find_item(dict, key);
+    const dict_item_t *item = find_item(dict, key, NULL);
 
     if (item == NULL) {
         base_errno = BASE_ERR_KEY;
@@ -319,9 +331,21 @@ bool dict_get(const dict_t *dict,
 }
 
 
-bool dict_del(dict_t *dict, const char *key)
+/** \brief  Remove item from dict
+ *
+ * Remove item at \a key from \a dict, freeing its value if the item's value
+ * is a string.
+ *
+ * \return  true if \a key was found
+ *
+ * \throw   BASE_ERR_KEY    \a key is NULL or empty
+ */
+bool dict_remove(dict_t *dict, const char *key)
 {
-    dict_item_t *item = find_item(dict, key);
+    dict_item_t *item;
+    uint32_t hash;
+
+    item = find_item(dict, key, &hash);
 
     if (item == NULL) {
         return false;
@@ -329,16 +353,27 @@ bool dict_del(dict_t *dict, const char *key)
         /* unlink item */
         dict_item_t *next = item->next;
         dict_item_t *prev = item->prev;
+        dict_item_t *head = dict->items[hash];
 
+        if (prev != NULL) {
+            prev->next = next;
+        }
+        if (next != NULL) {
+            next->prev = prev;
+        }
+        if (item == head) {
+            /* item is the head, update head */
+            dict->items[hash] = next;
+        }
+
+        /* free memory used */
         if (item->type == DICT_ITEM_STR && item->value != NULL) {
             base_free(item->value);
         }
+        base_free(item->key);
         base_free(item);
 
-        /* reconnect linked list */
-        prev->next = next;
-        next->prev = prev;
-        dict->count--;
+        dict->count--;  /* update item count */
         return true;
     }
 }
@@ -354,7 +389,7 @@ bool dict_del(dict_t *dict, const char *key)
  */
 bool dict_has_key(const dict_t *dict, const char *key)
 {
-    return find_item(dict, key) != NULL ? true : false;
+    return find_item(dict, key, NULL) != NULL ? true : false;
 }
 
 

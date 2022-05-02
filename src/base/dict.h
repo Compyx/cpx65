@@ -85,7 +85,7 @@ bool            dict_get    (const dict_t *dict,
                              dict_value_t *value,
                              dict_type_t *type);
 
-bool            dict_del    (dict_t *dict, const char *key);
+bool            dict_remove (dict_t *dict, const char *key);
 
 bool            dict_has_key(const dict_t *dict, const char *key);
 

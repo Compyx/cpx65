@@ -189,26 +189,15 @@ static keys_test_t keys_tests[] = {
 };
 
 
-/** \brief  Test dict_has_key() and dict_keys()
+/** \brief  Helper: add items using keys_tests[]
  *
- * \param[in]   self    test case
- *
- * \return  false on fatal error
+ * \return  true on success
  */
-static bool test_keys(testcase_t *self)
+static bool add_keys_tests(void)
 {
-    int i;
-    const char *key;
-    int value;
-    bool result;
-    const char **keys;
-    bool found;
-
-    /* set up test items */
-    printf("... adding items to the dict:\n");
-    for (i = 0; i < (int)base_array_len(keys_tests); i++) {
-        key = keys_tests[i].key;
-        value = keys_tests[i].value;
+    for (int i = 0; i < (int)base_array_len(keys_tests); i++) {
+        const char *key = keys_tests[i].key;
+        int value = keys_tests[i].value;
 
         printf("..... '%s' => %d .. ", key, value);
         if (dict_set(dict, key, DICT_INT_TO_VALUE(value), DICT_ITEM_INT)) {
@@ -217,6 +206,41 @@ static bool test_keys(testcase_t *self)
             printf("failed\n");
             return false;   /* fatal, no use to continue the test */
         }
+    }
+    return true;
+}
+
+
+static void print_keys(const char **keys)
+{
+    printf("[ ");
+    for (int i = 0; keys[i] != NULL; i++) {
+        printf("'%s'", keys[i]);
+        if (i < (int)(base_array_len(keys_tests)) - 1) {
+            printf(", ");
+        }
+    }
+    printf(" ]\n");
+}
+
+/** \brief  Test dict_has_key() and dict_keys()
+ *
+ * \param[in]   self    test case
+ *
+ * \return  false on fatal error
+ */
+static bool test_keys(testcase_t *self)
+{
+    const char **keys;
+    const char *key;
+    bool result;
+    bool found;
+    int i;
+
+    /* set up test items */
+    printf("... adding items to the dict:\n");
+    if (!add_keys_tests()) {
+        return false;
     }
 
     /* test #1: test for existing keys */
@@ -275,13 +299,9 @@ static bool test_keys(testcase_t *self)
     /* test #8: test dict_keys() */
     printf("... testing dict_keys(): requesting list of keys\n");
     keys = dict_keys(dict);
-    printf("..... [ ");
+    printf("..... ");
+    print_keys(keys);
     for (i = 0; keys[i] != NULL; i++) {
-        printf("'%s'", keys[i]);
-        if (i < (int)(base_array_len(keys_tests)) - 1) {
-            printf(", ");
-        }
-
         /* mark the key found in the array */
         for (int k = 0; k < (int)(base_array_len(keys_tests)); k++) {
             if (strcmp(keys_tests[k].key, keys[i]) == 0) {
@@ -290,7 +310,6 @@ static bool test_keys(testcase_t *self)
             }
         }
     }
-    printf(" ]\n");
 
     /* check if we found all keys we added and all occur exactly once */
     found = true;
@@ -304,6 +323,56 @@ static bool test_keys(testcase_t *self)
     testcase_assert_true(self, found);
 
     base_free(keys);
+
+    return true;
+}
+
+
+/** \brief  Test dict_remove()
+ *
+ * \param[in]   self    test case
+ *
+ * \return  false on fatal error
+ */
+static bool test_remove(testcase_t *self)
+{
+    bool result;
+    const char **keys;
+
+    /* set up test items */
+    printf("... adding items to the dict:\n");
+    if (!add_keys_tests()) {
+        return false;
+    }
+    /* visual sanity check: print the keys */
+    keys = dict_keys(dict);
+    printf("..... dict_keys() = ");
+    print_keys(keys);
+    base_free(keys);
+
+    /* test #1: remove an item, confirm return value */
+    printf("... calling dict_remove(\"three\") ..\n");
+    result = dict_remove(dict, "three");
+    printf("... result = %s, expected true\n", result ? "true" : "false");
+    testcase_assert_true(self, result);
+
+    /* test #2: check the key, which should be gone */
+    printf("... calling dict_has_key(\"three\") ..\n");
+    result = dict_has_key(dict, "three");
+    printf("... result = %s, expected false\n", result ? "true" : "false");
+    testcase_assert_false(self, result);
+
+    /* visual sanity check: print the keys */
+    keys = dict_keys(dict);
+    printf("..... dict_keys() = ");
+    print_keys(keys);
+    base_free(keys);
+
+    /* test #3: try to remove item with non-existent key */
+    printf("... calling dict_remove() with non-existent key \"aaargh!\n");
+    result = dict_remove(dict, "aaargh!");
+    printf("... result = %s, expected false\n", result ? "true" : "false");
+    testcase_assert_false(self, result);
 
     return true;
 }
@@ -335,6 +404,11 @@ testgroup_t *get_base_dict_tests(void)
     test = testcase_new("keys",
                         "Test dict_keys() and dict_has_key()",
                         8, test_keys, setup, teardown);
+    testgroup_add_case(group, test);
+
+    test = testcase_new("remove",
+                        "Test dict_remove()",
+                        3, test_remove, setup, teardown);
     testgroup_add_case(group, test);
 
     return group;
