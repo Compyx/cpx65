@@ -19,9 +19,10 @@ CFLAGS = -Wall -Wextra -std=c99 -O3 -g \
 BIN_ASM = cpx65as
 BIN_DISASM = cpx65da
 BIN_LD = cpx65ld
+BIN_PREPROC = cpx65pp
 BIN_TESTS = testrunner
 
-all: $(BIN_ASM) $(BIN_DISASM) $(BIN_TESTS)
+all: $(BIN_ASM) $(BIN_DISASM) $(BIN_PREPROC) $(BIN_TESTS)
 
 # objects in src/base/cpu
 BASE_CPU_OBJS = \
@@ -68,6 +69,9 @@ $(BIN_ASM): src/asm/main.o $(BASE_OBJS)
 $(BIN_DISASM): src/disasm/main.o $(BASE_OBJS)
 	$(LD) -o $@ $^
 
+$(BIN_PREPROC): src/preproc/main.o $(BASE_OBJS)
+	$(LD) -o $@ $^
+
 $(BIN_TESTS): src/tests/testrunner.o $(BASE_OBJS) $(TEST_OBJS)
 	$(LD) -o $@ $^
 
@@ -77,15 +81,12 @@ $(BIN_TESTS): src/tests/testrunner.o $(BASE_OBJS) $(TEST_OBJS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 
-
-
 .PHONY: clean
 clean:
 	rm -f *.o
 	rm -f $(BASE_OBJS) $(TEST_OBJS)
 	rm -f src/asm/main.o src/disasm/main.o src/tests/testrunner.o
 	rm -f $(BIN_ASM) $(BIN_DISASM) $(BIN_LD) $(BIN_TESTS)
-
 
 .PHONY: doc
 doc:
