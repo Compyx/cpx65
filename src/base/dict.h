@@ -124,6 +124,8 @@ dict_t *        dict_new    (void);
 
 void            dict_free   (dict_t *dict);
 
+size_t          dict_size   (const dict_t *dict);
+
 bool            dict_set    (dict_t *dict,
                              const char *key,
                              dict_value_t value,

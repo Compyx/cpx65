@@ -228,6 +228,22 @@ void dict_free(dict_t *dict)
 }
 
 
+/** \brief  Get dict size
+ *
+ * Get the number of items in \a dict.
+ *
+ * \param[in]   dict
+ *
+ * \return  number of items in \a dict
+ *
+ * \todo    Add unit test for this function
+ */
+size_t dict_size(const dict_t *dict)
+{
+    return dict->size;
+}
+
+
 /** \brief  Set dict item
  *
  * Set dict item \a key to \a value, overwriting the previous value if present.
