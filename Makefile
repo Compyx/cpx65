@@ -44,6 +44,7 @@ BASE_OBJS = \
 	hash.o \
 	mem.o \
 	objpool.o \
+	operators.o \
 	strlist.o \
 	strpool.o \
 	symtab.o \
@@ -59,6 +60,7 @@ TEST_OBJS = \
 	test_base_io.o \
 	test_base_mem.o \
 	test_base_objpool.o \
+	test_base_operators.o \
 	test_base_strpool.o
 #	test_symtab.o \
 
@@ -91,4 +93,3 @@ clean:
 .PHONY: doc
 doc:
 	doxygen
-

@@ -14,3 +14,4 @@ while working on other issues or additions.
 * Add search paths to CFLAGS in Makefile to make `#include` directives less
   verbose and less dependent on header locations.
 * Add `dict_size()` to base/dict.
+* Implement adding a list of test cases in testcase.c.

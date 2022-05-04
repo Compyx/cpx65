@@ -1,5 +1,7 @@
-/** \file   base.h
- * \brief   Header for all base headers
+/** \file   test_base_operators.h
+ * \brief   Unit tests for base/operators
+ *
+ * Some simple unit tests for operator handling.
  */
 
 /*
@@ -21,23 +23,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef BASE_BASE_H
-#define BASE_BASE_H
+#ifndef TESTS_TEST_BASE_OPERATORS_H
+#define TESTS_TEST_BASE_OPERATORS_H
 
-#include "cmdline.h"
-#include "convert.h"
-#include "debug.h"
-#include "dict.h"
-#include "error.h"
-#include "helpers.h"
-#include "mem.h"
-#include "objpool.h"
-#include "operators.h"
-#include "strlist.h"
-#include "strpool.h"
 
-/* subdirectories */
-#include "cpu/cpu.h"
-#include "io/io.h"
+testgroup_t *get_base_operators_tests(void);
 
 #endif

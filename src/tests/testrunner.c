@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "test_base_io.h"
 #include "test_base_mem.h"
 #include "test_base_objpool.h"
+#include "test_base_operators.h"
 #include "test_base_strpool.h"
 //#include "test_keywords.h"
 
@@ -160,6 +161,7 @@ static void register_groups(void)
     register_group(get_base_io_tests());
     register_group(get_base_mem_tests());
     register_group(get_base_objpool_tests());
+    register_group(get_base_operators_tests());
     register_group(get_base_strpool_tests());
 }
 
