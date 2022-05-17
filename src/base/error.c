@@ -44,7 +44,8 @@ static const char *err_msgs[] = {
     "cannot be empty",
     "key error",
     "index error",
-    "invalid enum value"
+    "invalid enum value",
+    "out of range"
 };
 
 

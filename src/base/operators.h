@@ -22,8 +22,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef BASE_PARSER_OPERATORS_H
-#define BASE_PARSER_OPERATORS_H
+#ifndef BASE_OPERATORS_H
+#define BASE_OPERATORS_H
 
 /** \brief  Operator ID enum
  */
